@@ -1,0 +1,47 @@
+[package]
+name = "portfolio-arcade"
+version = "0.1.0"
+edition = "2021"
+description = "generate gaming console-themed portfolio websites"
+license = "MIT"
+repository = "https://github.com/user/portfolio-arcade"
+keywords = ["cli", "portfolio", "web", "gaming", "generator"]
+categories = ["command-line-utilities", "web-programming"]
+
+[[bin]]
+name = "portfolio-arcade"
+path = "src/main.rs"
+
+[dependencies]
+# cli framework with derive macros for clean command definitions
+clap = { version = "4.5", features = ["derive"] }
+
+# terminal ui framework for interactive experience
+ratatui = "0.26"
+crossterm = "0.27"
+
+# json parsing and data serialization
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+# async runtime for running npm commands
+tokio = { version = "1", features = ["full"] }
+
+# progress bars and spinners for user feedback
+indicatif = "0.17"
+
+# colored terminal output
+colored = "2.1"
+
+# recursive directory operations for template copying
+walkdir = "2"
+
+# error handling and result types
+anyhow = "1.0"
+thiserror = "1.0"
+
+# file system operations
+fs_extra = "1.3"
+
+# regex for input validation
+regex = "1.10"
