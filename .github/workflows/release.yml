@@ -52,7 +52,7 @@ jobs:
             
             install via curl:
             ```bash
-            curl -sSfL https://${{ github.repository_owner }}.github.io/portfolio-arcade-install/install.sh | bash
+            curl -sSfL https://${{ github.repository_owner }}.github.io/portfolio-arcade/install.sh | bash
             ```
             
             or download the binary for your platform below.

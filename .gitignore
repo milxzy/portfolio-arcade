@@ -112,4 +112,5 @@ node_modules/
 *.old
 *_backup
 *_old
-.eslintcache.agents/
+.eslintcache
+.agents/

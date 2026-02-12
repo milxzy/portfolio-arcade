@@ -4,12 +4,12 @@
 
 ### basic installation
 ```bash
-curl -sSfL https://milxzy.github.io/portfolio-arcade-install/install.sh | bash
+curl -sSfL https://milxzy.github.io/portfolio-arcade/install.sh | bash
 ```
 
 ### install specific version
 ```bash
-curl -sSfL https://milxzy.github.io/portfolio-arcade-install/install.sh | bash -s -- --version v1.0.0
+curl -sSfL https://milxzy.github.io/portfolio-arcade/install.sh | bash -s -- --version v1.0.0
 ```
 
 ### manual installation

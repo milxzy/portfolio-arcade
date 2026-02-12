@@ -123,7 +123,7 @@ jobs:
               <div class="install-box">
                   <h3>quick install</h3>
                   <p>install portfolio-arcade with a single command:</p>
-                  <div class="install-command">curl -sSfL https://milxzy.github.io/portfolio-arcade-install/install.sh | bash</div>
+                  <div class="install-command">curl -sSfL https://milxzy.github.io/portfolio-arcade/install.sh | bash</div>
               </div>
               
               <h3>features</h3>
