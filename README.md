@@ -13,7 +13,7 @@ handles all the boring setup - copying files, installing dependencies, starting 
 install with a single command:
 
 ```bash
-curl -sSfL https://milx.github.io/portfolio-arcade-install/install.sh | bash
+curl -sSfL https://milxzy.github.io/portfolio-arcade-install/install.sh | bash
 ```
 
 then create your first portfolio:
@@ -26,7 +26,7 @@ portfolio-arcade init my-portfolio
 
 ```bash
 # grab the code and build it
-git clone https://github.com/milx/portfolio-arcade.git
+git clone https://github.com/milxzy/portfolio-arcade.git
 cd portfolio-arcade
 cargo build --release
 
@@ -100,7 +100,7 @@ portfolio-arcade update
 or reinstall with the latest version:
 
 ```bash
-curl -sSfL https://milx.github.io/portfolio-arcade-install/install.sh | bash
+curl -sSfL https://milxzy.github.io/portfolio-arcade-install/install.sh | bash
 ```
 
 ## building from source
@@ -108,7 +108,7 @@ curl -sSfL https://milx.github.io/portfolio-arcade-install/install.sh | bash
 need rust and node.js installed.
 
 ```bash
-git clone https://github.com/milx/portfolio-arcade.git
+git clone https://github.com/milxzy/portfolio-arcade.git
 cd portfolio-arcade
 cargo build --release
 ```

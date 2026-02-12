@@ -10,7 +10,7 @@ use std::io::{self, Write};
 const CURRENT_VERSION: &str = env!("CARGO_PKG_VERSION");
 
 // github repo info
-const REPO_OWNER: &str = "milx"; // update this to your github username
+const REPO_OWNER: &str = "milxzy"; // your github username
 const REPO_NAME: &str = "portfolio-arcade";
 
 // placeholder for update checking - will be implemented with reqwest later
@@ -76,7 +76,7 @@ fn show_update_instructions(new_version: &str) {
             || exe_path.to_string_lossy().contains("/usr/local/bin") {
             println!("run this command to update:");
             println!();
-            println!("  {}", "curl -sSfL https://milx.github.io/portfolio-arcade-install/install.sh | bash".bright_magenta());
+            println!("  {}", "curl -sSfL https://milxzy.github.io/portfolio-arcade-install/install.sh | bash".bright_magenta());
             println!();
             return;
         }
@@ -88,7 +88,7 @@ fn show_update_instructions(new_version: &str) {
                               REPO_OWNER, REPO_NAME, new_version).bright_blue());
     println!();
     println!("or use the install script:");
-    println!("  {}", "curl -sSfL https://milx.github.io/portfolio-arcade-install/install.sh | bash".bright_magenta());
+    println!("  {}", "curl -sSfL https://milxzy.github.io/portfolio-arcade-install/install.sh | bash".bright_magenta());
     println!();
 }
 
@@ -105,7 +105,7 @@ pub async fn force_update_check() -> Result<()> {
                               REPO_OWNER, REPO_NAME).bright_blue());
     println!();
     println!("or use the install script to get the latest version:");
-    println!("  {}", "curl -sSfL https://milx.github.io/portfolio-arcade-install/install.sh | bash".bright_magenta());
+    println!("  {}", "curl -sSfL https://milxzy.github.io/portfolio-arcade-install/install.sh | bash".bright_magenta());
     
     Ok(())
 }

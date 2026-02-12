@@ -4,16 +4,16 @@
 
 ### basic installation
 ```bash
-curl -sSfL https://milx.github.io/portfolio-arcade-install/install.sh | bash
+curl -sSfL https://milxzy.github.io/portfolio-arcade-install/install.sh | bash
 ```
 
 ### install specific version
 ```bash
-curl -sSfL https://milx.github.io/portfolio-arcade-install/install.sh | bash -s -- --version v1.0.0
+curl -sSfL https://milxzy.github.io/portfolio-arcade-install/install.sh | bash -s -- --version v1.0.0
 ```
 
 ### manual installation
-1. download the binary for your platform from [releases](https://github.com/milx/portfolio-arcade/releases)
+1. download the binary for your platform from [releases](https://github.com/milxzy/portfolio-arcade/releases)
 2. extract the archive
 3. move the binary to a directory in your PATH
 4. make it executable: `chmod +x portfolio-arcade`
