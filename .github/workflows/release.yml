@@ -1,0 +1,164 @@
+# automated cross-platform releases for portfolio-arcade
+# builds binaries for all major platforms and publishes to github releases
+
+name: release
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      tag_name:
+        description: 'tag name for the release'
+        required: true
+        type: string
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  # create the github release first
+  create-release:
+    name: create-release
+    runs-on: ubuntu-latest
+    outputs:
+      upload_url: ${{ steps.create_release.outputs.upload_url }}
+      tag_name: ${{ steps.get_tag.outputs.tag_name }}
+    steps:
+      - name: get the release tag
+        id: get_tag
+        run: |
+          if [[ -n "${{ github.event.inputs.tag_name }}" ]]; then
+            echo "tag_name=${{ github.event.inputs.tag_name }}" >> $GITHUB_OUTPUT
+          else
+            echo "tag_name=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: create github release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.get_tag.outputs.tag_name }}
+          release_name: portfolio-arcade ${{ steps.get_tag.outputs.tag_name }}
+          draft: false
+          prerelease: false
+          body: |
+            new release of portfolio-arcade! 🎮
+            
+            ## installation
+            
+            install via curl:
+            ```bash
+            curl -sSfL https://${{ github.repository_owner }}.github.io/portfolio-arcade-install/install.sh | bash
+            ```
+            
+            or download the binary for your platform below.
+
+  # build matrix for all supported platforms
+  build:
+    name: build-${{ matrix.target }}
+    needs: create-release
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # linux targets
+          - target: x86_64-unknown-linux-gnu
+            os: ubuntu-latest
+            rust: stable
+            
+          - target: aarch64-unknown-linux-gnu
+            os: ubuntu-latest
+            rust: stable
+            
+          # macos targets  
+          - target: x86_64-apple-darwin
+            os: macos-latest
+            rust: stable
+            
+          - target: aarch64-apple-darwin
+            os: macos-latest
+            rust: stable
+            
+          # windows targets
+          - target: x86_64-pc-windows-msvc
+            os: windows-latest
+            rust: stable
+
+    steps:
+      - name: checkout code
+        uses: actions/checkout@v4
+
+      - name: install rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: ${{ matrix.rust }}
+          targets: ${{ matrix.target }}
+
+      - name: setup cross-compilation for linux arm64
+        if: matrix.target == 'aarch64-unknown-linux-gnu'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gcc-aarch64-linux-gnu
+          echo "CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER=aarch64-linux-gnu-gcc" >> $GITHUB_ENV
+
+      - name: build release binary
+        run: cargo build --release --target ${{ matrix.target }}
+
+      - name: create archive name
+        id: archive
+        shell: bash
+        run: |
+          if [[ "${{ matrix.os }}" == "windows-latest" ]]; then
+            archive_name="portfolio-arcade-${{ needs.create-release.outputs.tag_name }}-${{ matrix.target }}.zip"
+            echo "archive_name=${archive_name}" >> $GITHUB_OUTPUT
+            echo "binary_extension=.exe" >> $GITHUB_OUTPUT
+          else
+            archive_name="portfolio-arcade-${{ needs.create-release.outputs.tag_name }}-${{ matrix.target }}.tar.gz"
+            echo "archive_name=${archive_name}" >> $GITHUB_OUTPUT
+            echo "binary_extension=" >> $GITHUB_OUTPUT
+          fi
+
+      - name: create archive
+        shell: bash
+        run: |
+          binary_name="portfolio-arcade${{ steps.archive.outputs.binary_extension }}"
+          
+          if [[ "${{ matrix.os }}" == "windows-latest" ]]; then
+            7z a "${{ steps.archive.outputs.archive_name }}" "./target/${{ matrix.target }}/release/${binary_name}"
+          else
+            tar -czvf "${{ steps.archive.outputs.archive_name }}" -C "./target/${{ matrix.target }}/release" "${binary_name}"
+          fi
+
+      - name: generate checksum
+        shell: bash
+        run: |
+          if [[ "${{ matrix.os }}" == "windows-latest" ]]; then
+            certutil -hashfile "${{ steps.archive.outputs.archive_name }}" SHA256 > "${{ steps.archive.outputs.archive_name }}.sha256"
+          else
+            shasum -a 256 "${{ steps.archive.outputs.archive_name }}" > "${{ steps.archive.outputs.archive_name }}.sha256"
+          fi
+
+      - name: upload release archive
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.create-release.outputs.upload_url }}
+          asset_path: ${{ steps.archive.outputs.archive_name }}
+          asset_name: ${{ steps.archive.outputs.archive_name }}
+          asset_content_type: application/octet-stream
+
+      - name: upload release checksum
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.create-release.outputs.upload_url }}
+          asset_path: ${{ steps.archive.outputs.archive_name }}.sha256
+          asset_name: ${{ steps.archive.outputs.archive_name }}.sha256
+          asset_content_type: text/plain

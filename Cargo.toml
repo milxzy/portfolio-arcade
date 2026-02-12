@@ -45,3 +45,6 @@ fs_extra = "1.3"
 
 # regex for input validation
 regex = "1.10"
+
+# cross-platform directory detection
+dirs = "5.0"

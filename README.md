@@ -8,11 +8,25 @@ makes portfolio sites themed after consoles you actually used. pick from ps3's c
 
 handles all the boring setup - copying files, installing dependencies, starting dev servers. you just pick a theme and add your projects.
 
-## getting started
+## quick install
+
+install with a single command:
+
+```bash
+curl -sSfL https://milx.github.io/portfolio-arcade-install/install.sh | bash
+```
+
+then create your first portfolio:
+
+```bash
+portfolio-arcade init my-portfolio
+```
+
+## alternative: build from source
 
 ```bash
 # grab the code and build it
-git clone https://github.com/username/portfolio-arcade.git
+git clone https://github.com/milx/portfolio-arcade.git
 cd portfolio-arcade
 cargo build --release
 
@@ -60,12 +74,41 @@ each theme feels different:
 
 **manually**: just edit the markdown files in `content/projects/` and `data/portfolio.json`. fastest if you're comfortable with code.
 
+## commands
+
+after installation, you can use these commands:
+
+```bash
+# create a new portfolio (starts interactive setup)
+portfolio-arcade init my-portfolio
+
+# check for updates
+portfolio-arcade update
+
+# get help
+portfolio-arcade --help
+```
+
+## updating
+
+portfolio-arcade automatically checks for updates when you run it. you can also manually check:
+
+```bash
+portfolio-arcade update
+```
+
+or reinstall with the latest version:
+
+```bash
+curl -sSfL https://milx.github.io/portfolio-arcade-install/install.sh | bash
+```
+
 ## building from source
 
 need rust and node.js installed.
 
 ```bash
-git clone https://github.com/username/portfolio-arcade.git
+git clone https://github.com/milx/portfolio-arcade.git
 cd portfolio-arcade
 cargo build --release
 ```
@@ -74,6 +117,7 @@ the code is pretty straightforward:
 - `src/cli.rs` - handles command line parsing
 - `src/tui/` - terminal interface with ratatui
 - `src/generator/` - copies templates and updates configs  
+- `src/update.rs` - auto-update functionality
 - `templates/` - the actual portfolio templates
 
 ## contributing

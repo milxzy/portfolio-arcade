@@ -9,6 +9,7 @@ mod cli;
 mod generator;
 mod models;
 mod tui;
+mod update;
 mod utils;
 
 use cli::{Cli, Commands};
@@ -17,6 +18,9 @@ use tui::App;
 #[tokio::main]
 async fn main() -> Result<()> {
     let cli = Cli::parse();
+
+    // check for updates before showing welcome message
+    update::check_and_prompt_update().await?;
 
     // show welcome message with some flair
     println!();
@@ -30,6 +34,10 @@ async fn main() -> Result<()> {
             // launch the interactive tui for project configuration
             let app = App::new(project_name);
             app.run().await?;
+        }
+        Commands::Update => {
+            // check for updates manually
+            update::force_update_check().await?;
         }
     }
 

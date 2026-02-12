@@ -1,0 +1,149 @@
+# deploy installation script and docs to github pages
+# creates a simple hosting solution for the curl installer
+
+name: pages
+
+on:
+  push:
+    branches: [main]
+    paths: ['docs/**', 'scripts/**']
+  workflow_dispatch:
+
+# allow only one concurrent deployment
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+
+      - name: setup pages
+        uses: actions/configure-pages@v4
+
+      - name: prepare site
+        run: |
+          # copy install script to docs directory
+          cp scripts/install.sh docs/install.sh
+          
+          # make sure install script is executable
+          chmod +x docs/install.sh
+          
+          # create a simple index page if it doesn't exist
+          if [[ ! -f docs/index.html ]]; then
+            cat > docs/index.html << 'EOF'
+          <!DOCTYPE html>
+          <html>
+          <head>
+              <title>portfolio-arcade installer</title>
+              <meta charset="UTF-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <style>
+                  body {
+                      font-family: 'SF Mono', 'Monaco', monospace;
+                      max-width: 800px;
+                      margin: 0 auto;
+                      padding: 2rem;
+                      background: #1a1a1a;
+                      color: #e0e0e0;
+                      line-height: 1.6;
+                  }
+                  .header {
+                      text-align: center;
+                      margin-bottom: 3rem;
+                      border-bottom: 1px solid #333;
+                      padding-bottom: 2rem;
+                  }
+                  .logo {
+                      font-size: 2rem;
+                      color: #00ff88;
+                      margin-bottom: 0.5rem;
+                  }
+                  .tagline {
+                      color: #888;
+                      font-size: 1rem;
+                  }
+                  .install-box {
+                      background: #2a2a2a;
+                      border: 1px solid #444;
+                      border-radius: 8px;
+                      padding: 1.5rem;
+                      margin: 2rem 0;
+                  }
+                  .install-command {
+                      background: #1e1e1e;
+                      border: 1px solid #333;
+                      border-radius: 4px;
+                      padding: 1rem;
+                      font-family: inherit;
+                      color: #00ff88;
+                      font-size: 0.9rem;
+                      word-break: break-all;
+                      margin: 1rem 0;
+                  }
+                  .feature {
+                      margin: 1rem 0;
+                      padding-left: 1.5rem;
+                  }
+                  .feature::before {
+                      content: "▸";
+                      color: #00ff88;
+                      margin-right: 0.5rem;
+                      margin-left: -1.5rem;
+                  }
+                  a {
+                      color: #00ff88;
+                      text-decoration: none;
+                  }
+                  a:hover {
+                      text-decoration: underline;
+                  }
+              </style>
+          </head>
+          <body>
+              <div class="header">
+                  <div class="logo">portfolio-arcade</div>
+                  <div class="tagline">create gaming console-themed portfolio websites</div>
+              </div>
+              
+              <div class="install-box">
+                  <h3>quick install</h3>
+                  <p>install portfolio-arcade with a single command:</p>
+                  <div class="install-command">curl -sSfL https://milx.github.io/portfolio-arcade-install/install.sh | bash</div>
+              </div>
+              
+              <h3>features</h3>
+              <div class="feature">cross-platform support (linux, macos, windows)</div>
+              <div class="feature">automatic updates</div>
+              <div class="feature">gaming console themes (ps3, ps5, nintendo wii)</div>
+              <div class="feature">modern next.js stack</div>
+              <div class="feature">cms integration options</div>
+              
+              <h3>usage</h3>
+              <p>after installation, create your first portfolio:</p>
+              <div class="install-command">portfolio-arcade init my-portfolio</div>
+              
+              <p>check for updates:</p>
+              <div class="install-command">portfolio-arcade update</div>
+              
+              <h3>source code</h3>
+              <p>view the source code on <a href="https://github.com/milx/portfolio-arcade">github</a></p>
+          </body>
+          </html>
+          EOF
+          fi
+
+      - name: upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs
+
+      - name: deploy to github pages
+        id: deployment
+        uses: actions/deploy-pages@v4
