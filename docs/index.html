@@ -78,9 +78,16 @@
             border-radius: 4px;
             font-size: 0.7rem;
             cursor: pointer;
+            transition: all 0.2s ease;
+            min-width: 50px;
+            text-align: center;
         }
         .copy-btn:hover {
             background: #30363d;
+            border-color: #7c3aed;
+        }
+        .copy-btn:active {
+            transform: scale(0.95);
         }
         .feature {
             margin: 1rem 0;
@@ -145,7 +152,7 @@
     <p>after installation, create your first portfolio:</p>
     <div class="install-command">
         portfolio-arcade init my-portfolio
-        <button class="copy-btn" onclick="copyToClipboard('portfolio-arcade init my-portfolio')">copy</button>
+        <button class="copy-btn" onclick="copyCommand('portfolio-arcade init my-portfolio')">copy</button>
     </div>
     
     <p>check for updates:</p>
@@ -157,7 +164,7 @@
     <p>see all options:</p>
     <div class="install-command">
         portfolio-arcade --help
-        <button class="copy-btn" onclick="copyToClipboard('portfolio-arcade --help')">copy</button>
+        <button class="copy-btn" onclick="copyCommand('portfolio-arcade --help')">copy</button>
     </div>
     
     <h3>themes available</h3>
@@ -174,15 +181,74 @@
     <p>view the source code and contribute on <a href="https://github.com/milxzy/portfolio-arcade">github</a></p>
     
     <script>
-        function copyToClipboard(text) {
-            navigator.clipboard.writeText(text).then(() => {
-                // could show a success message here
-            });
+        function copyToClipboard(text, button) {
+            // Try modern clipboard API first
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text).then(() => {
+                    showCopySuccess(button);
+                }).catch(() => {
+                    // Fallback if clipboard API fails
+                    fallbackCopy(text, button);
+                });
+            } else {
+                // Fallback for older browsers
+                fallbackCopy(text, button);
+            }
+        }
+        
+        function fallbackCopy(text, button) {
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            textarea.style.position = 'fixed';
+            textarea.style.opacity = '0';
+            document.body.appendChild(textarea);
+            textarea.focus();
+            textarea.select();
+            
+            try {
+                const successful = document.execCommand('copy');
+                if (successful) {
+                    showCopySuccess(button);
+                } else {
+                    showCopyError(button);
+                }
+            } catch (err) {
+                showCopyError(button);
+            }
+            
+            document.body.removeChild(textarea);
+        }
+        
+        function showCopySuccess(button) {
+            const originalText = button.textContent;
+            button.textContent = 'copied!';
+            button.style.background = '#22c55e';
+            setTimeout(() => {
+                button.textContent = originalText;
+                button.style.background = '';
+            }, 2000);
+        }
+        
+        function showCopyError(button) {
+            const originalText = button.textContent;
+            button.textContent = 'failed';
+            button.style.background = '#ef4444';
+            setTimeout(() => {
+                button.textContent = originalText;
+                button.style.background = '';
+            }, 2000);
         }
         
         function copyInstallCommand() {
             const cmd = 'curl -sSfL https://milxzy.github.io/portfolio-arcade/install.sh | bash';
-            copyToClipboard(cmd);
+            const button = event.target;
+            copyToClipboard(cmd, button);
+        }
+        
+        // Update other copy buttons to pass the button reference
+        function copyCommand(text) {
+            const button = event.target;
+            copyToClipboard(text, button);
         }
     </script>
 </body>

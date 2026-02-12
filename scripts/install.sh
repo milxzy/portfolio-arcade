@@ -298,6 +298,7 @@ main() {
 }
 
 # check if script is being sourced or executed
-if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+# when piped from curl, BASH_SOURCE may not be available, so we default to running main
+if [[ "${BASH_SOURCE[0]:-$0}" == "${0}" ]]; then
     main "$@"
 fi
