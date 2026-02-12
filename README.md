@@ -10,7 +10,7 @@ handles all the boring setup - copying files, installing dependencies, starting 
 
 ## quick install
 
-install with a single command:
+install with a single command (works on linux, macos, windows):
 
 ```bash
 curl -sSfL https://milxzy.github.io/portfolio-arcade-install/install.sh | bash
