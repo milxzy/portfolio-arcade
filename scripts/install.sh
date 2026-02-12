@@ -281,19 +281,15 @@ install_portfolio_arcade() {
 
 # run the installer
 main() {
-    printf "${MAGENTA}"
-    echo " ██████   ██████  ██████  ████████ ███████  ██████  ██      ██  ██████  "
-    echo " ██   ██ ██    ██ ██   ██    ██    ██      ██    ██ ██      ██ ██    ██ "
-    echo " ██████  ██    ██ ██████     ██    █████   ██    ██ ██      ██ ██    ██ "
-    echo " ██      ██    ██ ██   ██    ██    ██      ██    ██ ██      ██ ██    ██ "
-    echo " ██       ██████  ██   ██    ██    ██       ██████  ███████ ██  ██████  "
-    echo "                                                                         "
-    echo "  █████  ██████   ██████  █████  ██████  ███████                        "
-    echo " ██   ██ ██   ██ ██      ██   ██ ██   ██ ██                             "
-    echo " ███████ ██████  ██      ███████ ██   ██ █████                          "
-    echo " ██   ██ ██   ██ ██      ██   ██ ██   ██ ██                             "
-    echo " ██   ██ ██   ██  ██████ ██   ██ ██████  ███████                        "
-    printf "${NC}\n"
+    echo ""
+    printf "${BOLD}${MAGENTA}    ╔══════════════════════════════════════════════════════╗${NC}\n"
+    printf "${BOLD}${MAGENTA}    ║                                                      ║${NC}\n"
+    printf "${BOLD}${MAGENTA}    ║               PORTFOLIO • ARCADE                     ║${NC}\n"
+    printf "${BOLD}${MAGENTA}    ║                                                      ║${NC}\n"
+    printf "${BOLD}${CYAN}    ║        gaming console-themed portfolios               ║${NC}\n"
+    printf "${BOLD}${MAGENTA}    ║                                                      ║${NC}\n"
+    printf "${BOLD}${MAGENTA}    ╚══════════════════════════════════════════════════════╝${NC}\n"
+    echo ""
     
     printf "${CYAN}installing portfolio-arcade...${NC}\n"
     printf "${CYAN}create gaming console-themed portfolio websites${NC}\n\n"
