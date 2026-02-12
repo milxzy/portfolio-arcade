@@ -23,4 +23,6 @@ pub enum Commands {
         /// name of the project (will prompt if not provided)
         project_name: Option<String>,
     },
+    /// check for updates and show update instructions
+    Update,
 }
