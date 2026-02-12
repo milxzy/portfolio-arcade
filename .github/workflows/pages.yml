@@ -115,7 +115,7 @@ jobs:
               <div class="install-box">
                   <h3>quick install</h3>
                   <p>install portfolio-arcade with a single command:</p>
-                  <div class="install-command">curl -sSfL https://milx.github.io/portfolio-arcade-install/install.sh | bash</div>
+                  <div class="install-command">curl -sSfL https://milxzy.github.io/portfolio-arcade-install/install.sh | bash</div>
               </div>
               
               <h3>features</h3>
@@ -133,7 +133,7 @@ jobs:
               <div class="install-command">portfolio-arcade update</div>
               
               <h3>source code</h3>
-              <p>view the source code on <a href="https://github.com/milx/portfolio-arcade">github</a></p>
+              <p>view the source code on <a href="https://github.com/milxzy/portfolio-arcade">github</a></p>
           </body>
           </html>
           EOF

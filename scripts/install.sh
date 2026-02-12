@@ -25,7 +25,7 @@ else
 fi
 
 # repo info
-REPO="milx/portfolio-arcade"
+REPO="milxzy/portfolio-arcade"
 BINARY_NAME="portfolio-arcade"
 
 # installation paths
