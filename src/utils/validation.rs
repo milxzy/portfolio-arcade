@@ -1,9 +1,11 @@
 // input validation utilities
 // ensures user input is safe and valid
+// these functions are kept for testing and potential future use in the TUI
 
 use regex::Regex;
 
 // validates project name - alphanumeric, hyphens, underscores only
+#[allow(dead_code)]
 pub fn validate_project_name(name: &str) -> Result<(), String> {
     if name.trim().is_empty() {
         return Err("project name cannot be empty".to_string());
@@ -30,6 +32,7 @@ pub fn validate_project_name(name: &str) -> Result<(), String> {
 }
 
 // validates port number
+#[allow(dead_code)]
 pub fn validate_port(port_str: &str) -> Result<u16, String> {
     match port_str.parse::<u16>() {
         Ok(port) => {
@@ -44,6 +47,7 @@ pub fn validate_port(port_str: &str) -> Result<u16, String> {
 }
 
 // validates email format (basic)
+#[allow(dead_code)]
 pub fn validate_email(email: &str) -> Result<(), String> {
     if email.trim().is_empty() {
         return Ok(()); // empty email is allowed
@@ -58,6 +62,7 @@ pub fn validate_email(email: &str) -> Result<(), String> {
 }
 
 // validates url format (basic)
+#[allow(dead_code)]
 pub fn validate_url(url: &str) -> Result<(), String> {
     if url.trim().is_empty() {
         return Ok(()); // empty url is allowed
@@ -72,6 +77,7 @@ pub fn validate_url(url: &str) -> Result<(), String> {
 }
 
 // sanitizes user input for file names
+#[allow(dead_code)]
 pub fn sanitize_filename(input: &str) -> String {
     input
         .chars()

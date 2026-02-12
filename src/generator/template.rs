@@ -78,7 +78,7 @@ impl TemplateGenerator {
 
     fn copy_template(&self) -> Result<()> {
         let options = CopyOptions::new();
-        dir::copy(&self.source_dir, &self.target_dir.parent().unwrap(), &options)?;
+        dir::copy(&self.source_dir, self.target_dir.parent().unwrap(), &options)?;
 
         // rename the copied directory to the project name
         let copied_dir = self
@@ -155,8 +155,7 @@ impl TemplateGenerator {
         fs::create_dir_all(&content_dir)?;
 
         // create a sample project markdown file
-        let sample_project = format!(
-            r#"---
+        let sample_project = r#"---
 title: "sample project"
 description: "a great example project showcasing your skills"
 tech: ["react", "typescript", "tailwind css"]
@@ -187,8 +186,7 @@ this is a sample project to help you get started. edit this file to add your own
 describe what you learned building this project and what challenges you solved.
 
 replace this content with your own projects by editing files in the `content/projects/` directory.
-"#
-        );
+"#.to_string();
 
         let sample_file = content_dir.join("sample-project.md");
         fs::write(sample_file, sample_project)?;
@@ -353,8 +351,7 @@ made with portfolio arcade
         fs::write(admin_dir.join("index.html"), admin_html)?;
 
         // create decap cms config
-        let config_yml = format!(
-            r#"backend:
+        let config_yml = r#"backend:
   name: git-gateway
   branch: main
 
@@ -366,16 +363,16 @@ collections:
     label: "Projects"
     folder: "content/projects"
     create: true
-    slug: "{{{{slug}}}}"
+    slug: "{{slug}}"
     fields:
-      - {{label: "Title", name: "title", widget: "string"}}
-      - {{label: "Description", name: "description", widget: "text"}}
-      - {{label: "Tech Stack", name: "tech", widget: "list"}}
-      - {{label: "Featured", name: "featured", widget: "boolean", default: false}}
-      - {{label: "GitHub URL", name: "github", widget: "string", required: false}}
-      - {{label: "Live URL", name: "live", widget: "string", required: false}}
-      - {{label: "Date", name: "date", widget: "date"}}
-      - {{label: "Body", name: "body", widget: "markdown"}}
+      - {label: "Title", name: "title", widget: "string"}
+      - {label: "Description", name: "description", widget: "text"}
+      - {label: "Tech Stack", name: "tech", widget: "list"}
+      - {label: "Featured", name: "featured", widget: "boolean", default: false}
+      - {label: "GitHub URL", name: "github", widget: "string", required: false}
+      - {label: "Live URL", name: "live", widget: "string", required: false}
+      - {label: "Date", name: "date", widget: "date"}
+      - {label: "Body", name: "body", widget: "markdown"}
 
   - name: "settings"
     label: "Settings"
@@ -388,18 +385,17 @@ collections:
             name: "user"
             widget: "object"
             fields:
-              - {{label: "Name", name: "name", widget: "string"}}
-              - {{label: "Title", name: "title", widget: "string"}}
-              - {{label: "Bio", name: "bio", widget: "text"}}
+              - {label: "Name", name: "name", widget: "string"}
+              - {label: "Title", name: "title", widget: "string"}
+              - {label: "Bio", name: "bio", widget: "text"}
               - label: "Social Links"
                 name: "social"
                 widget: "object"
                 fields:
-                  - {{label: "GitHub", name: "github", widget: "string", required: false}}
-                  - {{label: "LinkedIn", name: "linkedin", widget: "string", required: false}}
-                  - {{label: "Email", name: "email", widget: "string", required: false}}
-"#
-        );
+                  - {label: "GitHub", name: "github", widget: "string", required: false}
+                  - {label: "LinkedIn", name: "linkedin", widget: "string", required: false}
+                  - {label: "Email", name: "email", widget: "string", required: false}
+"#.to_string();
 
         fs::write(admin_dir.join("config.yml"), config_yml)?;
 
