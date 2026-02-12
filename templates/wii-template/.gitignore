@@ -1,10 +1,72 @@
-# v0 runtime files (should only exist in preview, not in git)
+# dependencies
+node_modules/
+.pnp
+.pnp.js
+.yarn/install-state.gz
+
+# next.js
+.next/
+out/
+build/
+dist/
+
+# production
+*.tsbuildinfo
+next-env.d.ts
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# environment variables
+.env
+.env*.local
+.env.development
+.env.test
+.env.production
+
+# vercel
+.vercel
+
+# testing
+coverage/
+.nyc_output/
+
+# misc
+.DS_Store
+*.pem
+Thumbs.db
+
+# ide/editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.fleet/
+.nova/
+
+# ai assistants
+.claude/
+.cursor/
+.opencode/
+.aider/
+.continue/
+.windsurf/
+.v0/
+.copilot/
+.codeium/
+
+# v0 runtime files
 __v0_runtime_loader.js
 __v0_devtools.tsx
 __v0_jsx-dev-runtime.ts
 
-# Common ignores
-node_modules/
-.next/
-.env*.local
-.DS_Store
+# local files
+*.local
+.cache/
+.temp/
+tmp/

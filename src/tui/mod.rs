@@ -2,7 +2,6 @@
 // provides a friendly, keyboard-driven interface
 
 pub mod app;
-pub mod events;
 pub mod ui;
 
 pub use app::App;

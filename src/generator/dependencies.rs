@@ -113,10 +113,10 @@ impl DependencyManager {
         println!();
         println!("{}", "your portfolio is ready!".bold().green());
         println!();
-        println!("  {}: {}", "local".bold(), format!("http://localhost:{}", port));
+        println!("  {}: http://localhost:{}", "local".bold(), port);
         
         // show cms url if it's decap
-        println!("  {}: {}", "admin".bold(), format!("http://localhost:{}/admin", port));
+        println!("  {}: http://localhost:{}/admin", "admin".bold(), port);
         
         println!();
         println!("{}", "next steps:".bold());

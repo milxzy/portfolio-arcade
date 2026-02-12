@@ -282,7 +282,7 @@ fn draw_progress(f: &mut Frame, area: ratatui::layout::Rect, app: &App) {
         .borders(Borders::ALL)
         .border_style(Style::default().fg(Color::Magenta));
 
-    let progress_text = format!("{}", app.progress_message);
+    let progress_text = app.progress_message.to_string();
 
     let paragraph = Paragraph::new(progress_text)
         .block(block)

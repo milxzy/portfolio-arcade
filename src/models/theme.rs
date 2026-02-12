@@ -99,11 +99,9 @@ fn adapt_for_ps5(projects: &[Project]) -> Result<Value> {
             });
 
             // merge any extra fields
-            if let Ok(extra) = serde_json::to_value(&project.extra) {
-                if let Value::Object(extra_map) = extra {
-                    if let Value::Object(ref mut adapted_map) = adapted {
-                        adapted_map.extend(extra_map);
-                    }
+            if let Ok(Value::Object(extra_map)) = serde_json::to_value(&project.extra) {
+                if let Value::Object(ref mut adapted_map) = adapted {
+                    adapted_map.extend(extra_map);
                 }
             }
 
