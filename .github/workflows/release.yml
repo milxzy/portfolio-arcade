@@ -14,6 +14,11 @@ on:
         required: true
         type: string
 
+# add permissions needed for creating releases
+permissions:
+  contents: write
+  packages: write
+
 env:
   CARGO_TERM_COLOR: always
 
@@ -23,9 +28,11 @@ jobs:
     name: create-release
     runs-on: ubuntu-latest
     outputs:
-      upload_url: ${{ steps.create_release.outputs.upload_url }}
       tag_name: ${{ steps.get_tag.outputs.tag_name }}
     steps:
+      - name: checkout code
+        uses: actions/checkout@v4
+
       - name: get the release tag
         id: get_tag
         run: |
@@ -36,13 +43,10 @@ jobs:
           fi
 
       - name: create github release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.get_tag.outputs.tag_name }}
-          release_name: portfolio-arcade ${{ steps.get_tag.outputs.tag_name }}
+          name: portfolio-arcade ${{ steps.get_tag.outputs.tag_name }}
           draft: false
           prerelease: false
           body: |
@@ -143,22 +147,10 @@ jobs:
             shasum -a 256 "${{ steps.archive.outputs.archive_name }}" > "${{ steps.archive.outputs.archive_name }}.sha256"
           fi
 
-      - name: upload release archive
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: upload release assets
+        uses: softprops/action-gh-release@v2
         with:
-          upload_url: ${{ needs.create-release.outputs.upload_url }}
-          asset_path: ${{ steps.archive.outputs.archive_name }}
-          asset_name: ${{ steps.archive.outputs.archive_name }}
-          asset_content_type: application/octet-stream
-
-      - name: upload release checksum
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ needs.create-release.outputs.upload_url }}
-          asset_path: ${{ steps.archive.outputs.archive_name }}.sha256
-          asset_name: ${{ steps.archive.outputs.archive_name }}.sha256
-          asset_content_type: text/plain
+          tag_name: ${{ needs.create-release.outputs.tag_name }}
+          files: |
+            ${{ steps.archive.outputs.archive_name }}
+            ${{ steps.archive.outputs.archive_name }}.sha256
