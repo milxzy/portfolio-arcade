@@ -103,15 +103,34 @@ detect_platform() {
 # get the latest release version from github
 get_latest_version() {
     local api_url="https://api.github.com/repos/${REPO}/releases/latest"
+    local response
     
     if command -v curl &> /dev/null; then
-        curl -sSf "$api_url" | grep '"tag_name":' | sed -E 's/.*"tag_name": *"([^"]+)".*/\1/'
+        response=$(curl -sSf "$api_url" 2>/dev/null)
     elif command -v wget &> /dev/null; then
-        wget -qO- "$api_url" | grep '"tag_name":' | sed -E 's/.*"tag_name": *"([^"]+)".*/\1/'
+        response=$(wget -qO- "$api_url" 2>/dev/null)
     else
         error "need curl or wget to download"
         exit 1
     fi
+    
+    if [[ -z "$response" ]] || echo "$response" | grep -q '"message": *"Not Found"'; then
+        error "no releases found for ${REPO}"
+        echo ""
+        printf "${YELLOW}this usually means:${NC}\n"
+        printf "${YELLOW}• no releases have been published yet${NC}\n"
+        printf "${YELLOW}• you might need to build from source instead${NC}\n"
+        echo ""
+        printf "${CYAN}to build from source:${NC}\n"
+        printf "${CYAN}  git clone https://github.com/${REPO}.git${NC}\n"
+        printf "${CYAN}  cd $(basename ${REPO})${NC}\n"
+        printf "${CYAN}  cargo build --release${NC}\n"
+        printf "${CYAN}  sudo cp target/release/${BINARY_NAME} /usr/local/bin/${NC}\n"
+        echo ""
+        exit 1
+    fi
+    
+    echo "$response" | grep '"tag_name":' | sed -E 's/.*"tag_name": *"([^"]+)".*/\1/'
 }
 
 # download a file with progress
