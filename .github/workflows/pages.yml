@@ -29,8 +29,10 @@ jobs:
 
       - name: prepare site
         run: |
-          # copy install script to docs directory
-          cp scripts/install.sh docs/install.sh
+          # copy install script to docs directory if it doesn't exist or is different
+          if [[ ! -f docs/install.sh ]] || ! cmp -s scripts/install.sh docs/install.sh; then
+            cp scripts/install.sh docs/install.sh
+          fi
           
           # make sure install script is executable
           chmod +x docs/install.sh
