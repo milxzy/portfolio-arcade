@@ -163,7 +163,13 @@ verify_checksum() {
     info "verifying checksum..."
     
     if command -v shasum &> /dev/null; then
-        if shasum -a 256 -c "$checksum_file" &> /dev/null; then
+        # change to the directory containing the files for proper checksum verification
+        local file_dir=$(dirname "$file")
+        local file_name=$(basename "$file")
+        local checksum_name=$(basename "$checksum_file")
+        
+        # run shasum from the directory containing the files
+        if (cd "$file_dir" && shasum -a 256 -c "$checksum_name" &> /dev/null); then
             success "checksum verified"
         else
             error "checksum verification failed"
