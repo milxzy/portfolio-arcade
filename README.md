@@ -13,7 +13,7 @@ handles all the boring setup - copying files, installing dependencies, starting 
 install with a single command (works on linux, macos, windows):
 
 ```bash
-curl -sSfL https://milxzy.github.io/portfolio-arcade-install/install.sh | bash
+curl -sSfL https://milxzy.github.io/portfolio-arcade/install.sh | bash
 ```
 
 then create your first portfolio:
@@ -100,7 +100,7 @@ portfolio-arcade update
 or reinstall with the latest version:
 
 ```bash
-curl -sSfL https://milxzy.github.io/portfolio-arcade-install/install.sh | bash
+curl -sSfL https://milxzy.github.io/portfolio-arcade/install.sh | bash
 ```
 
 ## building from source
