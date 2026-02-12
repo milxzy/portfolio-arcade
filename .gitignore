@@ -114,3 +114,6 @@ node_modules/
 *_old
 .eslintcache
 .agents/
+
+# testing and development scripts
+test-install.sh
