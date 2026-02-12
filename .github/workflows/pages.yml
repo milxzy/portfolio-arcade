@@ -9,6 +9,12 @@ on:
     paths: ['docs/**', 'scripts/**']
   workflow_dispatch:
 
+# permissions needed for github pages deployment
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
 # allow only one concurrent deployment
 concurrency:
   group: pages
