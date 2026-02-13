@@ -387,7 +387,7 @@ export function XMBInterface({
           style={{
             left: "50%",
             top: "50%",
-            marginTop: "40px",
+            marginTop: "80px",
             transform: `translateX(-50px) translateY(${-currentItemIndex * 52}px)`,
             transition: "transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.15s ease",
           }}
