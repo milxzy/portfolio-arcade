@@ -124,18 +124,45 @@ impl TemplateGenerator {
     }
 
     fn copy_template(&self) -> Result<()> {
-        let options = CopyOptions::new();
-        dir::copy(&self.source_dir, self.target_dir.parent().unwrap(), &options)?;
-
-        // rename the copied directory to the project name
-        let copied_dir = self
-            .target_dir
-            .parent()
-            .unwrap()
-            .join(self.source_dir.file_name().unwrap());
-
-        if copied_dir != self.target_dir {
-            fs::rename(copied_dir, &self.target_dir)?;
+        use walkdir::WalkDir;
+        use std::path::Path;
+        
+        // Create target directory
+        fs::create_dir_all(&self.target_dir)?;
+        
+        // Directories and files to exclude
+        let exclude_names = vec!["node_modules", ".next", "package-lock.json"];
+        
+        // Walk through source directory and copy files selectively
+        for entry in WalkDir::new(&self.source_dir)
+            .into_iter()
+            .filter_entry(|e| {
+                // Exclude specific directories and files
+                let file_name = e.file_name().to_string_lossy();
+                !exclude_names.contains(&file_name.as_ref())
+            })
+        {
+            let entry = entry?;
+            let path = entry.path();
+            
+            // Skip the root source directory itself
+            if path == self.source_dir {
+                continue;
+            }
+            
+            // Calculate relative path from source
+            let relative_path = path.strip_prefix(&self.source_dir)?;
+            let target_path = self.target_dir.join(relative_path);
+            
+            if entry.file_type().is_dir() {
+                fs::create_dir_all(&target_path)?;
+            } else {
+                // Ensure parent directory exists
+                if let Some(parent) = target_path.parent() {
+                    fs::create_dir_all(parent)?;
+                }
+                fs::copy(path, &target_path)?;
+            }
         }
 
         Ok(())
