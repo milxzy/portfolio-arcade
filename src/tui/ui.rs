@@ -1,7 +1,6 @@
 // ui rendering for the terminal interface
 // creates beautiful, intuitive screens for each step
 
-use crate::models::CmsType;
 use crate::tui::app::{App, InputField, Screen};
 use ratatui::{
     layout::{Alignment, Constraint, Direction, Layout},
@@ -19,8 +18,8 @@ pub fn draw(f: &mut Frame, app: &App) {
 
     match app.current_screen {
         Screen::ThemeSelection => draw_theme_selection(f, chunks[0], app),
-        Screen::CmsSelection => draw_cms_selection(f, chunks[0], app),
         Screen::ProjectDetails => draw_project_details(f, chunks[0], app),
+        Screen::GitHubProjects => draw_github_projects(f, chunks[0], app),
         Screen::Confirmation => draw_confirmation(f, chunks[0], app),
         Screen::Progress => draw_progress(f, chunks[0], app),
         Screen::Complete => draw_complete(f, chunks[0], app),
@@ -84,53 +83,83 @@ fn draw_theme_selection(f: &mut Frame, area: ratatui::layout::Rect, app: &App) {
     f.render_widget(instructions, instruction_area);
 }
 
-fn draw_cms_selection(f: &mut Frame, area: ratatui::layout::Rect, app: &App) {
+fn draw_github_projects(f: &mut Frame, area: ratatui::layout::Rect, app: &App) {
     let block = Block::default()
-        .title(" choose cms option ")
+        .title(" github projects ")
         .borders(Borders::ALL)
-        .border_style(Style::default().fg(Color::Cyan));
+        .border_style(Style::default().fg(Color::Green));
 
-    let cms_options = [CmsType::Decap, CmsType::Payload, CmsType::None];
-    let descriptions = [
-        "git-based content management - recommended for beginners",
-        "self-hosted headless cms - requires server setup",
-        "manual json editing - for developers who prefer full control",
-    ];
+    let inner = block.inner(area);
 
-    let items: Vec<ListItem> = cms_options
+    let chunks = Layout::default()
+        .direction(Direction::Vertical)
+        .constraints([
+            Constraint::Length(3),
+            Constraint::Min(5),
+            Constraint::Length(3),
+        ])
+        .split(inner);
+
+    // current URL input field
+    let url_input = Paragraph::new(app.input_fields.current_github_url.as_str()).block(
+        Block::default()
+            .title("Enter GitHub project URL")
+            .borders(Borders::ALL)
+            .border_style(Style::default().fg(Color::Yellow)),
+    );
+
+    f.render_widget(url_input, chunks[0]);
+
+    // list of added projects
+    let project_items: Vec<ListItem> = app
+        .input_fields
+        .github_projects
         .iter()
         .enumerate()
-        .map(|(i, cms)| {
-            let cms_string = cms.to_string();
-            ListItem::new(vec![
-                Line::from(vec![Span::styled(
-                    cms_string,
-                    Style::default().add_modifier(Modifier::BOLD),
-                )]),
-                Line::from(vec![Span::styled(
-                    descriptions[i],
-                    Style::default().fg(Color::Gray),
-                )]),
-                Line::from(""),
-            ])
+        .map(|(i, url)| {
+            ListItem::new(vec![Line::from(vec![Span::styled(
+                format!("{}. {}", i + 1, url),
+                Style::default(),
+            )])])
         })
         .collect();
 
-    let mut list_state = ListState::default();
-    list_state.select(Some(app.selected_cms_idx));
+    let projects_list = List::new(project_items).block(
+        Block::default()
+            .title(format!(
+                "Added Projects ({})",
+                app.input_fields.github_projects.len()
+            ))
+            .borders(Borders::ALL)
+            .border_style(Style::default().fg(Color::Gray)),
+    );
 
-    let list = List::new(items)
-        .block(block)
-        .highlight_style(
-            Style::default()
-                .bg(Color::DarkGray)
-                .add_modifier(Modifier::BOLD),
+    f.render_widget(projects_list, chunks[1]);
+
+    // status message
+    let status_msg = if app.input_fields.github_projects.is_empty() {
+        "Add at least one GitHub project URL to continue"
+    } else if !app.input_fields.current_github_url.trim().is_empty() {
+        "Press Enter to add this URL, or Enter on empty field to continue"
+    } else {
+        "Press Enter to continue with your projects"
+    };
+
+    let status = Paragraph::new(status_msg)
+        .block(
+            Block::default()
+                .borders(Borders::ALL)
+                .border_style(Style::default().fg(Color::Blue)),
         )
-        .highlight_symbol("> ");
+        .style(Style::default().fg(Color::White))
+        .alignment(Alignment::Center);
 
-    f.render_stateful_widget(list, area, &mut list_state);
+    f.render_widget(status, chunks[2]);
 
-    let instructions = Paragraph::new("↑↓ to navigate • Enter to select • Backspace to go back")
+    // render the main block
+    f.render_widget(block, area);
+
+    let instructions = Paragraph::new("Type GitHub URLs • Enter to add/continue • Esc to go back")
         .style(Style::default().fg(Color::Yellow))
         .alignment(Alignment::Center);
 
@@ -154,7 +183,6 @@ fn draw_project_details(f: &mut Frame, area: ratatui::layout::Rect, app: &App) {
     let chunks = Layout::default()
         .direction(Direction::Vertical)
         .constraints([
-            Constraint::Length(3),
             Constraint::Length(3),
             Constraint::Length(3),
             Constraint::Length(3),
@@ -210,27 +238,11 @@ fn draw_project_details(f: &mut Frame, area: ratatui::layout::Rect, app: &App) {
 
     f.render_widget(title, chunks[2]);
 
-    // port field
-    let port_style = if app.current_input == InputField::Port {
-        Style::default().fg(Color::Yellow)
-    } else {
-        Style::default()
-    };
-
-    let port = Paragraph::new(app.input_fields.port.as_str()).block(
-        Block::default()
-            .title("dev server port")
-            .borders(Borders::ALL)
-            .border_style(port_style),
-    );
-
-    f.render_widget(port, chunks[3]);
-
     // render the main block last to show borders
     f.render_widget(block, area);
 
     let instructions =
-        Paragraph::new("Tab/Shift+Tab to navigate • Enter when ready • Backspace to go back")
+        Paragraph::new("Tab/Shift+Tab to navigate • Enter to add GitHub projects • Esc to go back")
             .style(Style::default().fg(Color::Yellow))
             .alignment(Alignment::Center);
 
@@ -248,13 +260,23 @@ fn draw_confirmation(f: &mut Frame, area: ratatui::layout::Rect, app: &App) {
         .borders(Borders::ALL)
         .border_style(Style::default().fg(Color::Green));
 
+    let projects_list = app
+        .input_fields
+        .github_projects
+        .iter()
+        .enumerate()
+        .map(|(i, url)| format!("  {}. {}", i + 1, url))
+        .collect::<Vec<_>>()
+        .join("\n");
+
     let summary = format!(
-        "theme: {}\ncms: {}\nproject: {}\nauthor: {}\nport: {}\n\nready to generate your portfolio?",
+        "theme: {}\nproject: {}\nauthor: {}\ntitle: {}\n\ngithub projects ({}):\n{}\n\nready to generate your portfolio?",
         app.selected_theme().display_name,
-        app.selected_cms(),
         app.input_fields.project_name,
         app.input_fields.author_name,
-        app.input_fields.port
+        app.input_fields.title,
+        app.input_fields.github_projects.len(),
+        if projects_list.is_empty() { "  (none added)" } else { &projects_list }
     );
 
     let paragraph = Paragraph::new(summary)
@@ -293,10 +315,11 @@ fn draw_progress(f: &mut Frame, area: ratatui::layout::Rect, app: &App) {
 
 fn draw_complete(f: &mut Frame, area: ratatui::layout::Rect, app: &App) {
     let success_message = format!(
-        "portfolio generated successfully!\n\nproject: {}\nlocation: ./{}/\ntheme: {}\n\nnext steps:\n• cd {}\n• npm install\n• npm run dev\n\npress any key to exit",
+        "portfolio generated successfully!\n\nproject: {}\nlocation: ./{}/\ntheme: {}\nprojects: {} GitHub repos\n\nnext steps:\n• cd {}\n• npm install\n• npm run build\n• deploy to your favorite hosting platform\n\npress any key to exit",
         app.input_fields.project_name,
         app.input_fields.project_name,
         app.selected_theme().display_name,
+        app.input_fields.github_projects.len(),
         app.input_fields.project_name
     );
 
