@@ -428,9 +428,6 @@ impl App {
     }
 
     async fn generate_project(&mut self) -> Result<()> {
-        use crate::generator::dependencies::DependencyManager;
-        use std::path::PathBuf;
-
         self.progress_message = "copying template files...".to_string();
 
         let generator = TemplateGenerator::new(
@@ -439,38 +436,6 @@ impl App {
         )?;
 
         generator.generate().await?;
-
-        self.progress_message = "installing dependencies...".to_string();
-
-        // install dependencies and start dev server
-        let project_path = PathBuf::from(&self.input_fields.project_name);
-        let dep_manager = DependencyManager::new(project_path);
-
-        // check if node is available first
-        if let Err(e) = DependencyManager::check_node_available().await {
-            self.error_message = Some(format!("{}", e));
-            return Ok(());
-        }
-
-        // check if port is available
-        if let Err(e) = DependencyManager::check_port_available(self.config.dev_port).await {
-            self.error_message = Some(format!("{}", e));
-            return Ok(());
-        }
-
-        // install dependencies
-        if let Err(e) = dep_manager.install_dependencies().await {
-            self.error_message = Some(format!("failed to install dependencies: {}", e));
-            return Ok(());
-        }
-
-        self.progress_message = "starting dev server...".to_string();
-
-        // start dev server
-        if let Err(e) = dep_manager.start_dev_server(self.config.dev_port).await {
-            self.error_message = Some(format!("failed to start dev server: {}", e));
-            return Ok(());
-        }
 
         self.progress_message = "project generated successfully!".to_string();
         Ok(())
