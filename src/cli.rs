@@ -6,7 +6,7 @@ use clap::{Parser, Subcommand};
 #[derive(Parser)]
 #[command(name = "portfolio-arcade")]
 #[command(author = "milx")]
-#[command(version = "0.1.0")]
+#[command(version = env!("CARGO_PKG_VERSION"))]
 #[command(about = "generate gaming console-themed portfolio sites")]
 #[command(
     long_about = "creates beautiful, interactive portfolio websites themed after classic gaming consoles like ps3, ps5, and nintendo wii. includes cms integration, responsive design, and modern web technologies."
