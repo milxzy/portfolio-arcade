@@ -11,7 +11,7 @@ import {
     ArrowLeft,
 } from "lucide-react";
 import type { UserProfile, Project } from "@/lib/projects";
-import { getProjectsForProfile } from "@/lib/projects";
+import { loadPortfolioData, getProjectsForProfile } from "@/lib/load-portfolio-data";
 
 interface Props {
     profile: UserProfile;
@@ -33,9 +33,10 @@ export function GameLibrary({ profile, onBack, onSelectProject }: Props) {
     const [loaded, setLoaded] = useState(false);
     const scrollBox = useRef<HTMLDivElement>(null);
 
-    // load projects for this profile type
+    // load projects for this profile type from portfolio.json
     useEffect(() => {
-        setProjects(getProjectsForProfile(profile));
+        const data = loadPortfolioData();
+        setProjects(getProjectsForProfile(data.projects, profile));
         setLoaded(true);
     }, [profile]);
 

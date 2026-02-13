@@ -75,6 +75,46 @@ fn adapt_for_ps5(projects: &[Project]) -> Result<Value> {
         .iter()
         .enumerate()
         .map(|(i, project)| {
+            // Calculate priority scores based on GitHub metrics and position
+            let stars = project.extra.get("stars")
+                .and_then(|v| v.as_u64())
+                .unwrap_or(0);
+            let has_live = project.links.live.is_some();
+            
+            // Projects with more stars and live demos rank higher for recruiters
+            let recruiter_priority = if has_live && stars > 10 { i + 1 } else { i + 5 };
+            // Recent projects with good tech stacks rank higher for engineers
+            let engineer_priority = if project.tech_stack.len() > 3 { i + 1 } else { i + 3 };
+            // Featured projects rank higher for strangers
+            let stranger_priority = if project.featured { i + 1 } else { i + 4 };
+            
+            // Calculate achievements based on project completeness
+            let has_description = !project.full_description.is_empty();
+            let has_links = project.links.github.is_some() || project.links.live.is_some();
+            let has_tech = !project.tech_stack.is_empty();
+            let achievements = 5 + 
+                (if has_description { 2 } else { 0 }) +
+                (if has_links { 2 } else { 0 }) +
+                (if has_tech { 2 } else { 0 }) +
+                (if stars > 5 { 1 } else { 0 }) +
+                (if has_live { 2 } else { 0 });
+            
+            let total_achievements = 14;
+            let progress = ((achievements as f32 / total_achievements as f32) * 100.0) as u32;
+            
+            // Use placeholder images if none provided
+            let cover_image = if !project.thumbnail.is_empty() {
+                project.thumbnail.clone()
+            } else {
+                format!("https://images.unsplash.com/photo-1555099962-4199c345e5dd?w=400&h=400&fit=crop&seed={}", i)
+            };
+            
+            let background_image = if !project.thumbnail.is_empty() {
+                project.thumbnail.clone()
+            } else {
+                format!("https://images.unsplash.com/photo-1555099962-4199c345e5dd?w=1920&h=1080&fit=crop&seed={}", i)
+            };
+            
             let mut adapted = serde_json::json!({
                 "id": project.id,
                 "title": project.title,
@@ -82,23 +122,23 @@ fn adapt_for_ps5(projects: &[Project]) -> Result<Value> {
                 "description": project.description,
                 "fullDescription": project.full_description,
                 "techStack": project.tech_stack,
-                "achievements": 8 + (i % 5),  // mock achievement count
-                "totalAchievements": 10 + (i % 3),
-                "progress": 75 + (i % 25),
-                "coverImage": project.thumbnail,
-                "backgroundImage": project.thumbnail,
+                "achievements": achievements,
+                "totalAchievements": total_achievements,
+                "progress": progress,
+                "coverImage": cover_image,
+                "backgroundImage": background_image,
                 "liveUrl": project.links.live,
                 "githubUrl": project.links.github,
                 "demoVideo": project.links.demo,
                 "screenshots": project.screenshots,
                 "priority": {
-                    "recruiter": i + 1,
-                    "engineer": i + 2,
-                    "stranger": i + 3
+                    "recruiter": recruiter_priority,
+                    "engineer": engineer_priority,
+                    "stranger": stranger_priority
                 }
             });
 
-            // merge any extra fields
+            // merge any extra fields (stars, forks, topics, etc.)
             if let Ok(Value::Object(extra_map)) = serde_json::to_value(&project.extra) {
                 if let Value::Object(ref mut adapted_map) = adapted {
                     adapted_map.extend(extra_map);
@@ -117,6 +157,34 @@ fn adapt_for_wii(projects: &[Project]) -> Result<Value> {
     let adapted: Vec<Value> = projects
         .iter()
         .map(|project| {
+            // Auto-categorize based on tech stack and GitHub data
+            let mut categories = vec![project.category.replace(" ", "-").to_lowercase()];
+
+            // Add profile-based categories
+            let stars = project
+                .extra
+                .get("stars")
+                .and_then(|v| v.as_u64())
+                .unwrap_or(0);
+
+            if project.links.live.is_some() && stars > 10 {
+                categories.push("recruiter".to_string());
+            }
+            if project.tech_stack.len() > 3 {
+                categories.push("engineer".to_string());
+            }
+            if project.featured {
+                categories.push("creative".to_string());
+            }
+
+            // Auto-assign to Wii channels based on tech and type
+            if project.links.live.is_some() {
+                categories.push("web-apps".to_string());
+            }
+            if project.links.github.is_some() {
+                categories.push("open-source".to_string());
+            }
+
             serde_json::json!({
                 "id": project.id,
                 "title": project.title,
@@ -125,8 +193,10 @@ fn adapt_for_wii(projects: &[Project]) -> Result<Value> {
                 "techStack": project.tech_stack,
                 "liveUrl": project.links.live,
                 "githubUrl": project.links.github,
-                "category": [project.category.replace(" ", "-").to_lowercase()],
-                "featured": project.featured
+                "category": categories,
+                "featured": project.featured,
+                "stars": project.extra.get("stars"),
+                "forks": project.extra.get("forks"),
             })
         })
         .collect();
@@ -136,8 +206,82 @@ fn adapt_for_wii(projects: &[Project]) -> Result<Value> {
 
 // adapts project data for ps3 template format
 fn adapt_for_ps3(projects: &[Project]) -> Result<Value> {
-    // ps3 template uses a simpler format
-    Ok(serde_json::to_value(projects)?)
+    let adapted: Vec<Value> = projects
+        .iter()
+        .enumerate()
+        .map(|(i, project)| {
+            // Calculate profile priority based on GitHub metrics
+            let stars = project
+                .extra
+                .get("stars")
+                .and_then(|v| v.as_u64())
+                .unwrap_or(0);
+            let has_live = project.links.live.is_some();
+
+            let mut profile_priority = vec![];
+
+            // High stars + live site = great for recruiters
+            if has_live && stars > 10 {
+                profile_priority.push("recruiter");
+            }
+            // Complex tech stack = interesting for engineers
+            if project.tech_stack.len() > 3 {
+                profile_priority.push("engineer");
+            }
+            // Featured projects = fun for strangers
+            if project.featured {
+                profile_priority.push("stranger");
+            }
+
+            // If no specific priority, add to all
+            if profile_priority.is_empty() {
+                profile_priority = vec!["recruiter", "engineer", "stranger"];
+            }
+
+            // Build links array for PS3 format
+            let mut links = vec![];
+            if let Some(github) = &project.links.github {
+                links.push(serde_json::json!({
+                    "label": "GitHub",
+                    "url": github
+                }));
+            }
+            if let Some(live) = &project.links.live {
+                links.push(serde_json::json!({
+                    "label": "Live Demo",
+                    "url": live
+                }));
+            }
+            if let Some(demo) = &project.links.demo {
+                links.push(serde_json::json!({
+                    "label": "Demo Video",
+                    "url": demo
+                }));
+            }
+
+            let mut adapted = serde_json::json!({
+                "id": project.id,
+                "label": project.title,
+                "subtitle": project.category,
+                "description": project.full_description,
+                "date": project.date,
+                "tags": project.tech_stack,
+                "links": links,
+                "profilePriority": profile_priority,
+            });
+
+            // Add extra GitHub metadata
+            if let Ok(Value::Object(extra_map)) = serde_json::to_value(&project.extra) {
+                if let Value::Object(ref mut adapted_map) = adapted {
+                    adapted_map.extend(extra_map);
+                }
+            }
+
+            adapted
+        })
+        .collect();
+
+    Ok(Value::Array(adapted))
 }
 
 // updates ps5 layout.tsx with user info
