@@ -196,14 +196,14 @@ impl TemplateGenerator {
     }
 
     fn create_portfolio_data(&self) -> Result<()> {
-        // create a data directory for portfolio content
-        let data_dir = self.target_dir.join("data");
-        fs::create_dir_all(&data_dir)?;
+        // create a data directory in public for client-side access
+        let public_data_dir = self.target_dir.join("public").join("data");
+        fs::create_dir_all(&public_data_dir)?;
 
         // create portfolio.json with adapted project data
         let portfolio_data = self.theme.adapt_projects(&self.config.projects)?;
 
-        let portfolio_file = data_dir.join("portfolio.json");
+        let portfolio_file = public_data_dir.join("portfolio.json");
         let full_config = serde_json::json!({
             "user": self.config.user,
             "projects": portfolio_data,

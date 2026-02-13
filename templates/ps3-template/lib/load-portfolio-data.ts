@@ -1,6 +1,5 @@
 // Loads portfolio data from data/portfolio.json with fallback to defaults
-import { readFileSync } from "fs"
-import { join } from "path"
+// This file should only be imported in Server Components or API routes
 import type { XMBCategory, XMBItem, UserProfile } from "./xmb-data"
 
 export interface PortfolioData {
@@ -22,11 +21,12 @@ export interface PortfolioData {
 }
 
 // Loads portfolio data from JSON file and transforms it into XMB categories
-export function loadPortfolioCategories(): XMBCategory[] {
+export async function loadPortfolioCategories(): Promise<XMBCategory[]> {
   try {
-    const dataPath = join(process.cwd(), "data", "portfolio.json")
-    const rawData = readFileSync(dataPath, "utf-8")
-    const data = JSON.parse(rawData) as PortfolioData
+    // In Next.js, fetch from public directory or API route
+    const response = await fetch('/data/portfolio.json', { cache: 'no-store' })
+    if (!response.ok) throw new Error('Failed to load portfolio.json')
+    const data = await response.json() as PortfolioData
     
     return buildXMBCategories(data)
   } catch (error) {

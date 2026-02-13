@@ -15,8 +15,9 @@ export function ProjectsView({
 
   // Load projects from portfolio.json on mount
   useEffect(() => {
-    const data = loadPortfolioData()
-    setProjects(data.projects)
+    loadPortfolioData().then((data) => {
+      setProjects(data.projects)
+    })
   }, [])
 
   const filtered = filter
