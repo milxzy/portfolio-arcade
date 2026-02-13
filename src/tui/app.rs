@@ -2,7 +2,7 @@
 // orchestrates the user flow from theme selection to project generation
 
 use crate::generator::TemplateGenerator;
-use crate::models::{CmsType, PortfolioConfig, Theme};
+use crate::models::{PortfolioConfig, Theme};
 use anyhow::Result;
 use crossterm::{
     event::{self, DisableMouseCapture, EnableMouseCapture, Event, KeyCode},
@@ -18,8 +18,8 @@ use std::io;
 #[derive(Debug, Clone, PartialEq)]
 pub enum Screen {
     ThemeSelection,
-    CmsSelection,
     ProjectDetails,
+    GitHubProjects,
     Confirmation,
     Progress,
     Complete,
@@ -30,7 +30,6 @@ pub struct App {
     pub config: PortfolioConfig,
     pub themes: Vec<Theme>,
     pub selected_theme_idx: usize,
-    pub selected_cms_idx: usize,
     pub input_fields: InputFields,
     pub current_input: InputField,
     pub should_quit: bool,
@@ -43,7 +42,8 @@ pub struct InputFields {
     pub project_name: String,
     pub author_name: String,
     pub title: String,
-    pub port: String,
+    pub github_projects: Vec<String>,
+    pub current_github_url: String,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -51,7 +51,7 @@ pub enum InputField {
     ProjectName,
     AuthorName,
     Title,
-    Port,
+    GitHubUrl,
 }
 
 impl App {
@@ -63,7 +63,8 @@ impl App {
             project_name: project_name.unwrap_or_else(|| "my-portfolio".to_string()),
             author_name: config.user.name.clone(),
             title: config.user.title.clone(),
-            port: config.dev_port.to_string(),
+            github_projects: Vec::new(),
+            current_github_url: String::new(),
         };
 
         Self {
@@ -71,7 +72,6 @@ impl App {
             config,
             themes,
             selected_theme_idx: 1, // default to ps5
-            selected_cms_idx: 0,   // default to decap cms
             input_fields,
             current_input: InputField::ProjectName,
             should_quit: false,
@@ -140,8 +140,8 @@ impl App {
 
         match self.current_screen {
             Screen::ThemeSelection => self.handle_theme_selection(key),
-            Screen::CmsSelection => self.handle_cms_selection(key),
             Screen::ProjectDetails => self.handle_project_details(key),
+            Screen::GitHubProjects => self.handle_github_projects(key),
             Screen::Confirmation => self.handle_confirmation(key).await?,
             Screen::Progress => {
                 // progress screen doesn't accept input
@@ -170,36 +170,13 @@ impl App {
             }
             KeyCode::Enter => {
                 self.config.theme = self.themes[self.selected_theme_idx].id.clone();
-                self.current_screen = Screen::CmsSelection;
-            }
-            _ => {}
-        }
-    }
-
-    fn handle_cms_selection(&mut self, key: KeyCode) {
-        let cms_options = [CmsType::Decap, CmsType::Payload, CmsType::None];
-
-        match key {
-            KeyCode::Up => {
-                if self.selected_cms_idx > 0 {
-                    self.selected_cms_idx -= 1;
-                }
-            }
-            KeyCode::Down => {
-                if self.selected_cms_idx < cms_options.len() - 1 {
-                    self.selected_cms_idx += 1;
-                }
-            }
-            KeyCode::Enter => {
-                self.config.cms = cms_options[self.selected_cms_idx].clone();
                 self.current_screen = Screen::ProjectDetails;
             }
-            KeyCode::Backspace => {
-                self.current_screen = Screen::ThemeSelection;
-            }
             _ => {}
         }
     }
+
+
 
     fn handle_project_details(&mut self, key: KeyCode) {
         match key {
@@ -207,22 +184,37 @@ impl App {
                 self.current_input = match self.current_input {
                     InputField::ProjectName => InputField::AuthorName,
                     InputField::AuthorName => InputField::Title,
-                    InputField::Title => InputField::Port,
-                    InputField::Port => InputField::ProjectName,
+                    InputField::Title => InputField::ProjectName,
+                    InputField::GitHubUrl => InputField::ProjectName,
+                };
+            }
+            KeyCode::Up => {
+                self.current_input = match self.current_input {
+                    InputField::ProjectName => InputField::Title,
+                    InputField::AuthorName => InputField::ProjectName,
+                    InputField::Title => InputField::AuthorName,
+                    InputField::GitHubUrl => InputField::Title,
+                };
+            }
+            KeyCode::Down => {
+                self.current_input = match self.current_input {
+                    InputField::ProjectName => InputField::AuthorName,
+                    InputField::AuthorName => InputField::Title,
+                    InputField::Title => InputField::ProjectName,
+                    InputField::GitHubUrl => InputField::ProjectName,
                 };
             }
             KeyCode::BackTab => {
                 self.current_input = match self.current_input {
-                    InputField::ProjectName => InputField::Port,
+                    InputField::ProjectName => InputField::Title,
                     InputField::AuthorName => InputField::ProjectName,
                     InputField::Title => InputField::AuthorName,
-                    InputField::Port => InputField::Title,
+                    InputField::GitHubUrl => InputField::Title,
                 };
             }
             KeyCode::Enter => {
-                if self.validate_inputs() {
-                    self.update_config_from_inputs();
-                    self.current_screen = Screen::Confirmation;
+                if self.validate_basic_inputs() {
+                    self.current_screen = Screen::GitHubProjects;
                 }
             }
             KeyCode::Char(c) => {
@@ -232,7 +224,33 @@ impl App {
                 self.delete_char_from_current_input();
             }
             KeyCode::Esc => {
-                self.current_screen = Screen::CmsSelection;
+                self.current_screen = Screen::ThemeSelection;
+            }
+            _ => {}
+        }
+    }
+
+    fn handle_github_projects(&mut self, key: KeyCode) {
+        match key {
+            KeyCode::Enter => {
+                if !self.input_fields.current_github_url.trim().is_empty() {
+                    // Add the current URL to the list
+                    self.input_fields.github_projects.push(self.input_fields.current_github_url.clone());
+                    self.input_fields.current_github_url.clear();
+                } else if !self.input_fields.github_projects.is_empty() {
+                    // If no URL entered but we have projects, proceed
+                    self.update_config_from_inputs();
+                    self.current_screen = Screen::Confirmation;
+                }
+            }
+            KeyCode::Char(c) => {
+                self.input_fields.current_github_url.push(c);
+            }
+            KeyCode::Backspace | KeyCode::Delete => {
+                self.input_fields.current_github_url.pop();
+            }
+            KeyCode::Esc => {
+                self.current_screen = Screen::ProjectDetails;
             }
             _ => {}
         }
@@ -246,7 +264,7 @@ impl App {
                 self.current_screen = Screen::Complete;
             }
             KeyCode::Backspace => {
-                self.current_screen = Screen::ProjectDetails;
+                self.current_screen = Screen::GitHubProjects;
             }
             _ => {}
         }
@@ -258,11 +276,7 @@ impl App {
             InputField::ProjectName => self.input_fields.project_name.push(c),
             InputField::AuthorName => self.input_fields.author_name.push(c),
             InputField::Title => self.input_fields.title.push(c),
-            InputField::Port => {
-                if c.is_ascii_digit() {
-                    self.input_fields.port.push(c);
-                }
-            }
+            InputField::GitHubUrl => self.input_fields.current_github_url.push(c),
         }
     }
 
@@ -277,23 +291,62 @@ impl App {
             InputField::Title => {
                 self.input_fields.title.pop();
             }
-            InputField::Port => {
-                self.input_fields.port.pop();
+            InputField::GitHubUrl => {
+                self.input_fields.current_github_url.pop();
             }
         }
     }
 
-    fn validate_inputs(&self) -> bool {
+    fn validate_basic_inputs(&self) -> bool {
         !self.input_fields.project_name.trim().is_empty()
             && !self.input_fields.author_name.trim().is_empty()
             && !self.input_fields.title.trim().is_empty()
-            && self.input_fields.port.parse::<u16>().is_ok()
+    }
+
+    fn validate_inputs(&self) -> bool {
+        self.validate_basic_inputs() && !self.input_fields.github_projects.is_empty()
     }
 
     fn update_config_from_inputs(&mut self) {
         self.config.user.name = self.input_fields.author_name.clone();
         self.config.user.title = self.input_fields.title.clone();
-        self.config.dev_port = self.input_fields.port.parse().unwrap_or(3000);
+        self.config.cms = crate::models::CmsType::None; // Default to no CMS for GitHub-based workflow
+        // Convert GitHub URLs to project data
+        self.config.projects = self.github_urls_to_projects();
+    }
+
+    fn github_urls_to_projects(&self) -> Vec<crate::models::portfolio::Project> {
+        self.input_fields.github_projects
+            .iter()
+            .enumerate()
+            .map(|(i, url)| {
+                // Extract repo name from URL for basic project info
+                let repo_name = url
+                    .split('/')
+                    .last()
+                    .unwrap_or("project")
+                    .replace(".git", "");
+                
+                crate::models::portfolio::Project {
+                    id: format!("project-{}", i + 1),
+                    title: repo_name.replace('-', " "),
+                    description: format!("Project hosted at {}", url),
+                    full_description: "This project will be populated with GitHub data.".to_string(),
+                    category: "Development".to_string(),
+                    tech_stack: vec!["GitHub".to_string()],
+                    featured: i == 0, // First project is featured
+                    links: crate::models::portfolio::ProjectLinks {
+                        github: Some(url.clone()),
+                        live: None,
+                        demo: None,
+                    },
+                    thumbnail: "".to_string(),
+                    screenshots: vec![],
+                    date: "2024-01-01".to_string(), // Default date, will be updated from GitHub
+                    extra: std::collections::HashMap::new(),
+                }
+            })
+            .collect()
     }
 
     async fn generate_project(&mut self) -> Result<()> {
@@ -349,8 +402,5 @@ impl App {
         &self.themes[self.selected_theme_idx]
     }
 
-    pub fn selected_cms(&self) -> CmsType {
-        let cms_options = [CmsType::Decap, CmsType::Payload, CmsType::None];
-        cms_options[self.selected_cms_idx].clone()
-    }
+
 }
