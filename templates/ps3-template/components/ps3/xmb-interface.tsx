@@ -326,7 +326,7 @@ export function XMBInterface({
             transform: `translateX(${-catIndex * 100}px)`,
             transition: "transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
             left: "50%",
-            zIndex: 1,
+            zIndex: 10,
           }}
           role="menubar"
           aria-label="Categories"
@@ -390,7 +390,6 @@ export function XMBInterface({
             marginTop: "40px",
             transform: `translateX(-50px) translateY(${-currentItemIndex * 52}px)`,
             transition: "transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.15s ease",
-            zIndex: 2,
           }}
           role="menu"
           aria-label={`${currentCat?.label} items`}
@@ -408,6 +407,8 @@ export function XMBInterface({
                   background: isActive
                     ? "linear-gradient(90deg, rgba(60,120,220,0.15) 0%, rgba(60,120,220,0) 100%)"
                     : "transparent",
+                  position: "relative",
+                  zIndex: isActive ? 20 : 5,
                 }}
                 onClick={() => {
                   setItemIndices((prev) => {
