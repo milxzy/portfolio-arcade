@@ -225,14 +225,14 @@ impl App {
                     self.current_screen = Screen::Confirmation;
                 }
             }
-            KeyCode::Backspace => {
-                self.current_screen = Screen::CmsSelection;
-            }
             KeyCode::Char(c) => {
                 self.add_char_to_current_input(c);
             }
-            KeyCode::Delete => {
+            KeyCode::Backspace | KeyCode::Delete => {
                 self.delete_char_from_current_input();
+            }
+            KeyCode::Esc => {
+                self.current_screen = Screen::CmsSelection;
             }
             _ => {}
         }
