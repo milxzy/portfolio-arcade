@@ -316,10 +316,10 @@ impl App {
     }
 
     fn github_urls_to_projects(&self) -> Vec<crate::models::portfolio::Project> {
-        // Create a runtime for async operations
-        let rt = tokio::runtime::Runtime::new().unwrap();
+        // Use the current runtime handle instead of creating a new runtime
+        let handle = tokio::runtime::Handle::current();
         
-        rt.block_on(async {
+        handle.block_on(async {
             let client = match crate::github::GitHubClient::new() {
                 Ok(client) => client,
                 Err(e) => {
