@@ -3,7 +3,6 @@
 
 use crate::models::{PortfolioConfig, Theme};
 use anyhow::{anyhow, Result};
-use fs_extra::dir::{self, CopyOptions};
 use serde_json::Value;
 use std::path::PathBuf;
 use std::{env, fs};
@@ -125,7 +124,6 @@ impl TemplateGenerator {
 
     fn copy_template(&self) -> Result<()> {
         use walkdir::WalkDir;
-        use std::path::Path;
         
         // Create target directory
         fs::create_dir_all(&self.target_dir)?;
