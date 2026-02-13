@@ -387,7 +387,7 @@ export function XMBInterface({
           style={{
             left: "50%",
             top: "50%",
-            marginTop: "40px",
+            marginTop: "-20px",
             transform: `translateX(-50px) translateY(${-currentItemIndex * 52}px)`,
             transition: "transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.15s ease",
           }}
@@ -397,11 +397,6 @@ export function XMBInterface({
           {currentCat?.items.map((item, i) => {
             const isActive = i === currentItemIndex
             const distance = Math.abs(i - currentItemIndex)
-            const relativePosition = i - currentItemIndex
-            // Hide items that would render too far below (past ~2 items below active)
-            const shouldHide = relativePosition > 2
-            
-            if (shouldHide) return null
             
             return (
               <button
