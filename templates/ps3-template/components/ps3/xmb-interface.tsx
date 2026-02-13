@@ -2,8 +2,11 @@
 
 import { useCallback, useEffect, useRef, useState } from "react"
 import {
-  CATEGORIES,
+  loadPortfolioCategories,
   getProjectsForProfile,
+  type PortfolioData,
+} from "@/lib/load-portfolio-data"
+import {
   type UserProfile,
   type XMBCategory,
   type XMBItem,
@@ -28,27 +31,33 @@ export function XMBInterface({
   scanlines,
   onScanlinesToggle,
 }: XMBInterfaceProps) {
+  const [categories, setCategories] = useState<XMBCategory[]>([])
   const [catIndex, setCatIndex] = useState(0)
-  const [itemIndices, setItemIndices] = useState<number[]>(
-    CATEGORIES.map(() => 0)
-  )
+  const [itemIndices, setItemIndices] = useState<number[]>([])
   const [profile, setProfile] = useState<UserProfile>("recruiter")
   const [showDetail, setShowDetail] = useState(false)
   const [transitioning, setTransitioning] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
 
+  // Load portfolio data on mount
+  useEffect(() => {
+    const loadedCategories = loadPortfolioCategories()
+    setCategories(loadedCategories)
+    setItemIndices(loadedCategories.map(() => 0))
+  }, [])
+
   // Build effective categories with profile-sorted projects
   const getEffectiveCategories = useCallback((): XMBCategory[] => {
-    return CATEGORIES.map((cat) => {
+    return categories.map((cat) => {
       if (cat.id === "projects") {
-        return { ...cat, items: getProjectsForProfile(profile) }
+        return { ...cat, items: getProjectsForProfile(categories, profile) }
       }
       return cat
     })
-  }, [profile])
+  }, [profile, categories])
 
-  const categories = getEffectiveCategories()
-  const currentCat = categories[catIndex]
+  const effectiveCategories = getEffectiveCategories()
+  const currentCat = effectiveCategories[catIndex]
   const currentItemIndex = itemIndices[catIndex]
   const currentItem = currentCat?.items[currentItemIndex]
 
@@ -107,7 +116,7 @@ export function XMBInterface({
           if (!isInInput) {
             e.preventDefault()
             setTransitioning(true)
-            setCatIndex((prev) => Math.min(categories.length - 1, prev + 1))
+            setCatIndex((prev) => Math.min(effectiveCategories.length - 1, prev + 1))
             setTimeout(() => setTransitioning(false), 150)
           }
           break
@@ -152,7 +161,7 @@ export function XMBInterface({
 
     window.addEventListener("keydown", handleKey)
     return () => window.removeEventListener("keydown", handleKey)
-  }, [catIndex, categories.length, currentCat?.items.length, showDetail, currentItem])
+  }, [catIndex, effectiveCategories.length, currentCat?.items.length, showDetail, currentItem])
 
   const handleSelect = useCallback(() => {
     if (!currentItem) return
@@ -211,7 +220,7 @@ export function XMBInterface({
         if (dx > 0) {
           setCatIndex((prev) => Math.max(0, prev - 1))
         } else {
-          setCatIndex((prev) => Math.min(categories.length - 1, prev + 1))
+          setCatIndex((prev) => Math.min(effectiveCategories.length - 1, prev + 1))
         }
       } else if (absDy > absDx && absDy > threshold) {
         // Vertical swipe
@@ -239,7 +248,7 @@ export function XMBInterface({
       container.removeEventListener("touchstart", handleTouchStart)
       container.removeEventListener("touchend", handleTouchEnd)
     }
-  }, [catIndex, categories.length, currentCat?.items.length])
+  }, [catIndex, effectiveCategories.length, currentCat?.items.length])
 
   if (showDetail && currentItem) {
     return (
@@ -288,7 +297,7 @@ export function XMBInterface({
           role="menubar"
           aria-label="Categories"
         >
-          {categories.map((cat, i) => {
+          {effectiveCategories.map((cat, i) => {
             const isActive = i === catIndex
             const distance = Math.abs(i - catIndex)
             return (
