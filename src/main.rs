@@ -7,6 +7,7 @@ use colored::*;
 
 mod cli;
 mod generator;
+mod github;
 mod models;
 mod tui;
 mod update;
