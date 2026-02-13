@@ -171,3 +171,47 @@
 .progress-bar-fill {
   animation: progress-fill 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
+
+/* Wii-style cursor animations */
+@keyframes cursor-blink {
+  0%, 50% {
+    caret-color: transparent;
+  }
+  51%, 100% {
+    caret-color: #1e90ff; /* Wii blue cursor */
+  }
+}
+
+@keyframes wii-cursor-bounce {
+  0%, 100% {
+    caret-color: #1e90ff;
+  }
+  50% {
+    caret-color: #00bfff;
+  }
+}
+
+/* Apply enhanced cursor to all text inputs and textareas */
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus,
+input[type="search"]:focus,
+input[type="url"]:focus,
+textarea:focus,
+.text-input:focus {
+  caret-color: #1e90ff;
+  animation: cursor-blink 1.4s infinite;
+  outline: 2px solid rgba(30, 144, 255, 0.4);
+  outline-offset: 2px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+/* Special Wii-themed inputs */
+.wii-input:focus {
+  animation: wii-cursor-bounce 1.6s infinite;
+  box-shadow: 
+    0 0 0 2px rgba(30, 144, 255, 0.3),
+    0 4px 12px rgba(30, 144, 255, 0.15);
+  background: rgba(30, 144, 255, 0.03);
+}

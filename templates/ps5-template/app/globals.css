@@ -100,3 +100,45 @@
 .animate-pulse-ring {
   animation: pulse-ring 1.5s ease-out infinite;
 }
+
+/* Enhanced Text Input Cursor Animations */
+@keyframes cursor-blink {
+  0%, 50% {
+    caret-color: transparent;
+  }
+  51%, 100% {
+    caret-color: hsl(var(--ps-highlight));
+  }
+}
+
+@keyframes cursor-glow {
+  0%, 100% {
+    caret-color: hsl(var(--ps-highlight));
+  }
+  50% {
+    caret-color: hsl(var(--primary));
+  }
+}
+
+/* Apply enhanced cursor to all text inputs and textareas */
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus,
+input[type="search"]:focus,
+input[type="url"]:focus,
+textarea:focus,
+.text-input:focus {
+  caret-color: hsl(var(--ps-highlight));
+  animation: cursor-blink 1.2s infinite;
+  outline: 2px solid hsl(var(--ps-highlight) / 0.3);
+  outline-offset: 2px;
+  transition: outline-color 0.2s ease;
+}
+
+/* Special styling for PS5-themed inputs */
+.ps5-input:focus {
+  animation: cursor-glow 1.5s infinite;
+  box-shadow: 
+    0 0 0 1px hsl(var(--ps-highlight) / 0.5),
+    0 0 20px hsl(var(--ps-highlight) / 0.2);
+}

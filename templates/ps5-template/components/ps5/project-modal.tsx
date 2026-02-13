@@ -22,7 +22,14 @@ export function ProjectModal({ project, onClose }: Props) {
     // esc to close
     useEffect(() => {
         const onKey = (e: KeyboardEvent) => {
-            if (e.key === "Escape" || e.key === "Backspace") {
+            // check if user is typing in an input field
+            const activeElement = document.activeElement;
+            const isInInput = activeElement instanceof HTMLInputElement || 
+                             activeElement instanceof HTMLTextAreaElement ||
+                             activeElement?.tagName === 'INPUT' ||
+                             activeElement?.tagName === 'TEXTAREA';
+            
+            if (e.key === "Escape" || (e.key === "Backspace" && !isInInput)) {
                 onClose();
             }
         };
