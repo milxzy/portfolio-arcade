@@ -211,32 +211,32 @@ fn adapt_for_ps3(projects: &[Project]) -> Result<Value> {
         .enumerate()
         .map(|(i, project)| {
             // Calculate profile priority based on GitHub metrics
+            // All projects are shown to all profiles, but ordered differently
             let stars = project
                 .extra
                 .get("stars")
                 .and_then(|v| v.as_u64())
                 .unwrap_or(0);
             let has_live = project.links.live.is_some();
+            let tech_count = project.tech_stack.len();
 
-            let mut profile_priority = vec![];
-
-            // High stars + live site = great for recruiters
-            if has_live && stars > 10 {
-                profile_priority.push("recruiter");
-            }
-            // Complex tech stack = interesting for engineers
-            if project.tech_stack.len() > 3 {
-                profile_priority.push("engineer");
-            }
-            // Featured projects = fun for strangers
-            if project.featured {
-                profile_priority.push("stranger");
-            }
-
-            // If no specific priority, add to all
-            if profile_priority.is_empty() {
-                profile_priority = vec!["recruiter", "engineer", "stranger"];
-            }
+            // Determine priority order based on project characteristics
+            // Projects with high stars + live site = prioritize for recruiters
+            // Projects with complex tech = prioritize for engineers
+            // Featured/creative projects = prioritize for strangers
+            let profile_priority = if has_live && stars > 10 {
+                // Production-quality project: recruiters first
+                vec!["recruiter", "engineer", "stranger"]
+            } else if tech_count > 3 {
+                // Technical project: engineers first
+                vec!["engineer", "recruiter", "stranger"]
+            } else if project.featured {
+                // Creative/fun project: strangers first
+                vec!["stranger", "recruiter", "engineer"]
+            } else {
+                // Default: show to all with neutral ordering
+                vec!["recruiter", "engineer", "stranger"]
+            };
 
             // Build links array for PS3 format
             let mut links = vec![];
