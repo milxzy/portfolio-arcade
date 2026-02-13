@@ -1,8 +1,9 @@
 "use client"
 
-import { projects, type Project } from "@/lib/channels"
+import { type Project } from "@/lib/channels"
+import { loadPortfolioData, getProjectsByCategory } from "@/lib/load-portfolio-data"
 import { ExternalLink, Github, Play } from "lucide-react"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 
 export function ProjectsView({
   filter,
@@ -10,9 +11,16 @@ export function ProjectsView({
   filter?: string
 }) {
   const [selected, setSelected] = useState<Project | null>(null)
+  const [projects, setProjects] = useState<Project[]>([])
+
+  // Load projects from portfolio.json on mount
+  useEffect(() => {
+    const data = loadPortfolioData()
+    setProjects(data.projects)
+  }, [])
 
   const filtered = filter
-    ? projects.filter((p) => p.category.includes(filter))
+    ? getProjectsByCategory(projects, filter)
     : projects
 
   return (
