@@ -316,37 +316,115 @@ impl App {
     }
 
     fn github_urls_to_projects(&self) -> Vec<crate::models::portfolio::Project> {
+        // Create a runtime for async operations
+        let rt = tokio::runtime::Runtime::new().unwrap();
+        
+        rt.block_on(async {
+            let client = match crate::github::GitHubClient::new() {
+                Ok(client) => client,
+                Err(e) => {
+                    eprintln!("Warning: Failed to create GitHub client: {}", e);
+                    eprintln!("Projects will be created with placeholder data.");
+                    return self.create_placeholder_projects();
+                }
+            };
+            
+            let mut projects = Vec::new();
+            
+            for (i, url) in self.input_fields.github_projects.iter().enumerate() {
+                match self.fetch_github_project(&client, url, i).await {
+                    Ok(project) => projects.push(project),
+                    Err(e) => {
+                        eprintln!("Warning: Failed to fetch data for {}: {}", url, e);
+                        eprintln!("Creating placeholder project for this repository.");
+                        projects.push(self.create_placeholder_project(url, i));
+                    }
+                }
+            }
+            
+            projects
+        })
+    }
+    
+    async fn fetch_github_project(&self, client: &crate::github::GitHubClient, url: &str, index: usize) -> Result<crate::models::portfolio::Project> {
+        // Parse GitHub URL
+        let (owner, repo) = crate::github::parse_github_url(url)?;
+        
+        // Fetch repository data
+        let repo_data = client.get_repo(&owner, &repo).await?;
+        let languages = client.get_languages(&owner, &repo).await?;
+        
+        // Process languages into tech stack
+        let tech_stack = crate::github::process_languages(&languages);
+        
+        // Try to fetch README for full description
+        let full_description = client.get_readme(&owner, &repo).await
+            .unwrap_or_else(|_| repo_data.description.clone().unwrap_or_default());
+        
+        // Extract date from created_at
+        let date = repo_data.created_at.split('T').next().unwrap_or("2024-01-01");
+        
+        Ok(crate::models::portfolio::Project {
+            id: format!("project-{}", index + 1),
+            title: repo_data.name.replace('-', " ").replace('_', " "),
+            description: repo_data.description.unwrap_or_else(|| format!("A {} project", repo_data.language.unwrap_or_else(|| "software".to_string()))),
+            full_description,
+            category: "Development".to_string(),
+            tech_stack,
+            featured: index == 0 || repo_data.stargazers_count > 10,
+            links: crate::models::portfolio::ProjectLinks {
+                github: Some(url.to_string()),
+                live: repo_data.homepage,
+                demo: None,
+            },
+            thumbnail: "".to_string(),
+            screenshots: vec![],
+            date: date.to_string(),
+            extra: {
+                let mut extra = std::collections::HashMap::new();
+                extra.insert("stars".to_string(), serde_json::json!(repo_data.stargazers_count));
+                extra.insert("forks".to_string(), serde_json::json!(repo_data.forks_count));
+                if !repo_data.topics.is_empty() {
+                    extra.insert("topics".to_string(), serde_json::json!(repo_data.topics.join(", ")));
+                }
+                extra
+            },
+        })
+    }
+    
+    fn create_placeholder_projects(&self) -> Vec<crate::models::portfolio::Project> {
         self.input_fields.github_projects
             .iter()
             .enumerate()
-            .map(|(i, url)| {
-                // Extract repo name from URL for basic project info
-                let repo_name = url
-                    .split('/')
-                    .last()
-                    .unwrap_or("project")
-                    .replace(".git", "");
-                
-                crate::models::portfolio::Project {
-                    id: format!("project-{}", i + 1),
-                    title: repo_name.replace('-', " "),
-                    description: format!("Project hosted at {}", url),
-                    full_description: "This project will be populated with GitHub data.".to_string(),
-                    category: "Development".to_string(),
-                    tech_stack: vec!["GitHub".to_string()],
-                    featured: i == 0, // First project is featured
-                    links: crate::models::portfolio::ProjectLinks {
-                        github: Some(url.clone()),
-                        live: None,
-                        demo: None,
-                    },
-                    thumbnail: "".to_string(),
-                    screenshots: vec![],
-                    date: "2024-01-01".to_string(), // Default date, will be updated from GitHub
-                    extra: std::collections::HashMap::new(),
-                }
-            })
+            .map(|(i, url)| self.create_placeholder_project(url, i))
             .collect()
+    }
+    
+    fn create_placeholder_project(&self, url: &str, index: usize) -> crate::models::portfolio::Project {
+        let repo_name = url
+            .split('/')
+            .last()
+            .unwrap_or("project")
+            .replace(".git", "");
+        
+        crate::models::portfolio::Project {
+            id: format!("project-{}", index + 1),
+            title: repo_name.replace('-', " "),
+            description: format!("Project hosted at {}", url),
+            full_description: "This project will be populated with GitHub data.".to_string(),
+            category: "Development".to_string(),
+            tech_stack: vec!["GitHub".to_string()],
+            featured: index == 0,
+            links: crate::models::portfolio::ProjectLinks {
+                github: Some(url.to_string()),
+                live: None,
+                demo: None,
+            },
+            thumbnail: "".to_string(),
+            screenshots: vec![],
+            date: "2024-01-01".to_string(),
+            extra: std::collections::HashMap::new(),
+        }
     }
 
     async fn generate_project(&mut self) -> Result<()> {
