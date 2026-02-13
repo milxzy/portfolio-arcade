@@ -12,20 +12,22 @@
   "projects": [
     {
       "id": "test-project-1",
-      "title": "Test Project",
+      "label": "Test Project",
       "subtitle": "A test portfolio project",
-      "description": "This is a test project to verify that portfolio data loads correctly from JSON",
-      "coverImage": "/placeholder.svg",
-      "techStack": ["React", "TypeScript", "Next.js"],
-      "githubUrl": "https://github.com/testuser/test-project",
-      "liveUrl": "https://test-project.dev",
-      "featured": true,
-      "priority": {
-        "recruiter": 1,
-        "engineer": 2,
-        "stranger": 3
-      },
-      "category": ["web-apps"]
+      "description": "This is a test project to verify that portfolio data loads correctly from JSON in the PS3 XMB interface",
+      "date": "2024-02-13",
+      "tags": ["React", "TypeScript", "Next.js"],
+      "links": [
+        {
+          "label": "GitHub",
+          "url": "https://github.com/testuser/test-project"
+        },
+        {
+          "label": "Live Demo",
+          "url": "https://test-project.dev"
+        }
+      ],
+      "profilePriority": ["recruiter", "engineer", "stranger"]
     }
   ],
   "theme": "ps3"
