@@ -35,9 +35,10 @@ export function GameLibrary({ profile, onBack, onSelectProject }: Props) {
 
     // load projects for this profile type from portfolio.json
     useEffect(() => {
-        const data = loadPortfolioData();
-        setProjects(getProjectsForProfile(data.projects, profile));
-        setLoaded(true);
+        loadPortfolioData().then((data) => {
+            setProjects(getProjectsForProfile(data.projects, profile));
+            setLoaded(true);
+        });
     }, [profile]);
 
     // keyboard nav
