@@ -21,20 +21,52 @@ impl TemplateGenerator {
         // get the current directory where templates should be located
         let current_dir = env::current_dir()?;
         
-        // try multiple possible template locations with fallback
-        let possible_template_dirs = vec![
+        // get the executable directory for relative path resolution
+        let exe_dir = env::current_exe()
+            .ok()
+            .and_then(|p| p.parent().map(|p| p.to_path_buf()));
+        
+        // try multiple possible template locations with extensive fallbacks
+        let mut possible_template_dirs = vec![
+            // Current working directory
             current_dir.join("templates"),
             PathBuf::from("templates"),
             PathBuf::from("./templates"),
         ];
         
+        // Add executable-relative paths if we can determine exe location
+        if let Some(exe_path) = exe_dir {
+            possible_template_dirs.extend(vec![
+                exe_path.join("templates"),
+                exe_path.join("../templates"),
+                exe_path.join("../../templates"),
+                // For development: if exe is in target/debug or target/release
+                exe_path.join("../../../templates"),
+            ]);
+        }
+        
+        // Add common project structure fallbacks
+        possible_template_dirs.extend(vec![
+            PathBuf::from("portfolio-arcade/templates"),
+            PathBuf::from("../portfolio-arcade/templates"),
+            current_dir.join("portfolio-arcade/templates"),
+            current_dir.parent().map(|p| p.join("portfolio-arcade/templates")).unwrap_or_else(|| PathBuf::from("")),
+        ]);
+        
+        // Clone the paths for error message before moving
+        let paths_for_error = possible_template_dirs.clone();
+        
         let templates_dir = possible_template_dirs
             .into_iter()
-            .find(|dir| dir.exists())
+            .find(|dir| dir.exists() && dir.is_dir())
             .ok_or_else(|| anyhow!(
-                "templates directory not found. Tried:\n- {}/templates\n- ./templates\n- templates/\nCurrent directory: {}",
+                "templates directory not found. Tried:\n{}\nCurrent directory: {}\nExecutable location: {}",
+                paths_for_error.iter()
+                    .map(|p| format!("- {}", p.display()))
+                    .collect::<Vec<_>>()
+                    .join("\n"),
                 current_dir.display(),
-                current_dir.display()
+                env::current_exe().map(|p| p.display().to_string()).unwrap_or_else(|_| "unknown".to_string())
             ))?;
 
         // find the selected theme
