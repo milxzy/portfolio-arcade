@@ -3,6 +3,7 @@
 import { useEffect } from "react"
 import type { XMBItem } from "@/lib/xmb-data"
 import { ArrowLeft, ExternalLink } from "lucide-react"
+import ReactMarkdown from "react-markdown"
 
 interface ItemDetailProps {
   item: XMBItem
@@ -44,7 +45,7 @@ export function ItemDetail({ item, categoryId, onBack }: ItemDetailProps) {
 
       {/* Content Panel */}
       <div
-        className="relative z-10 w-full max-w-2xl mx-4 rounded-sm overflow-hidden animate-in slide-in-from-bottom-4 duration-400"
+        className="relative z-10 w-full max-w-2xl mx-4 max-h-[85vh] flex flex-col rounded-sm overflow-hidden animate-in slide-in-from-bottom-4 duration-400"
         style={{
           background: "linear-gradient(180deg, rgba(20,25,40,0.95) 0%, rgba(10,12,20,0.98) 100%)",
           border: "1px solid rgba(60,120,220,0.15)",
@@ -89,16 +90,91 @@ export function ItemDetail({ item, categoryId, onBack }: ItemDetailProps) {
           </button>
         </div>
 
-        {/* Body */}
-        <div className="px-6 py-5 flex flex-col gap-5">
-          {/* Description */}
+        {/* Body - Scrollable */}
+        <div className="px-6 py-5 flex flex-col gap-5 overflow-y-auto flex-1">
+          {/* Description with Markdown */}
           {item.description && (
-            <p
-              className="text-sm leading-relaxed"
+            <div
+              className="text-sm leading-relaxed prose prose-invert prose-sm max-w-none"
               style={{ color: "rgba(200,200,200,0.8)" }}
             >
-              {item.description}
-            </p>
+              <ReactMarkdown
+                components={{
+                  h1: ({ node, ...props }) => (
+                    <h1 className="text-xl font-bold mb-3 mt-4" style={{ color: "#e8e8e8" }} {...props} />
+                  ),
+                  h2: ({ node, ...props }) => (
+                    <h2 className="text-lg font-semibold mb-2 mt-3" style={{ color: "#d0d0d0" }} {...props} />
+                  ),
+                  h3: ({ node, ...props }) => (
+                    <h3 className="text-base font-medium mb-2 mt-2" style={{ color: "#c0c0c0" }} {...props} />
+                  ),
+                  p: ({ node, ...props }) => (
+                    <p className="mb-3" style={{ color: "rgba(200,200,200,0.8)" }} {...props} />
+                  ),
+                  ul: ({ node, ...props }) => (
+                    <ul className="list-disc list-inside mb-3 space-y-1" style={{ color: "rgba(200,200,200,0.8)" }} {...props} />
+                  ),
+                  ol: ({ node, ...props }) => (
+                    <ol className="list-decimal list-inside mb-3 space-y-1" style={{ color: "rgba(200,200,200,0.8)" }} {...props} />
+                  ),
+                  li: ({ node, ...props }) => (
+                    <li style={{ color: "rgba(200,200,200,0.8)" }} {...props} />
+                  ),
+                  code: ({ node, inline, ...props }) =>
+                    inline ? (
+                      <code
+                        className="px-1.5 py-0.5 rounded text-xs font-mono"
+                        style={{
+                          backgroundColor: "rgba(60,120,220,0.15)",
+                          color: "rgba(160,190,240,0.95)",
+                        }}
+                        {...props}
+                      />
+                    ) : (
+                      <code
+                        className="block px-3 py-2 rounded text-xs font-mono overflow-x-auto"
+                        style={{
+                          backgroundColor: "rgba(20,25,40,0.6)",
+                          color: "rgba(180,200,240,0.9)",
+                        }}
+                        {...props}
+                      />
+                    ),
+                  pre: ({ node, ...props }) => (
+                    <pre
+                      className="mb-3 p-3 rounded overflow-x-auto"
+                      style={{
+                        backgroundColor: "rgba(20,25,40,0.6)",
+                        border: "1px solid rgba(60,120,220,0.15)",
+                      }}
+                      {...props}
+                    />
+                  ),
+                  a: ({ node, ...props }) => (
+                    <a
+                      className="underline hover:no-underline"
+                      style={{ color: "rgba(100,160,240,0.9)" }}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      {...props}
+                    />
+                  ),
+                  blockquote: ({ node, ...props }) => (
+                    <blockquote
+                      className="border-l-2 pl-3 italic mb-3"
+                      style={{
+                        borderColor: "rgba(60,120,220,0.3)",
+                        color: "rgba(180,180,200,0.7)",
+                      }}
+                      {...props}
+                    />
+                  ),
+                }}
+              >
+                {item.description}
+              </ReactMarkdown>
+            </div>
           )}
 
           {/* Tags / Tech Stack */}
