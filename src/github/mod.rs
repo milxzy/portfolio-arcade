@@ -2,7 +2,6 @@
 // Fetches project information, languages, and README content
 
 use anyhow::{anyhow, Result};
-use reqwest;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
