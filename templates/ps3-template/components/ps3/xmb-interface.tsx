@@ -21,6 +21,8 @@ interface XMBInterfaceProps {
   onSoundToggle: () => void
   scanlines: boolean
   onScanlinesToggle: () => void
+  waveIntensity: number
+  onWaveIntensityChange: (intensity: number) => void
 }
 
 export function XMBInterface({
@@ -30,6 +32,8 @@ export function XMBInterface({
   onSoundToggle,
   scanlines,
   onScanlinesToggle,
+  waveIntensity,
+  onWaveIntensityChange,
 }: XMBInterfaceProps) {
   const [categories, setCategories] = useState<XMBCategory[]>([])
   const [catIndex, setCatIndex] = useState(0)
@@ -61,6 +65,30 @@ export function XMBInterface({
   const currentCat = effectiveCategories[catIndex]
   const currentItemIndex = itemIndices[catIndex]
   const currentItem = currentCat?.items[currentItemIndex]
+
+  // Get dynamic subtitle for settings items
+  const getItemSubtitle = useCallback((item: XMBItem, categoryId: string): string => {
+    if (categoryId === "settings") {
+      if (item.id === "settings-sound") {
+        return soundEnabled ? "ON - Sound effects enabled" : "OFF - Sound effects disabled"
+      }
+      if (item.id === "settings-scanlines") {
+        return scanlines ? "ON - CRT effect active" : "OFF - CRT effect disabled"
+      }
+      if (item.id === "settings-particles") {
+        const intensityLabels: Record<number, string> = {
+          0.3: "Very Low",
+          0.6: "Low",
+          1.0: "Medium",
+          1.5: "High",
+          2.0: "Very High",
+        }
+        const label = intensityLabels[waveIntensity] || "Medium"
+        return `${label} - Press Enter to cycle`
+      }
+    }
+    return item.subtitle || ""
+  }, [soundEnabled, scanlines, waveIntensity])
 
   // Clock
   const [clock, setClock] = useState("")
@@ -186,14 +214,18 @@ export function XMBInterface({
       } else if (currentItem.id === "settings-scanlines") {
         onScanlinesToggle()
       } else if (currentItem.id === "settings-particles") {
-        onColorChange((catIndex + 1) % 5)
+        // Cycle through intensity: 0.3 -> 0.6 -> 1.0 -> 1.5 -> 2.0 -> back to 0.3
+        const intensities = [0.3, 0.6, 1.0, 1.5, 2.0]
+        const currentIndex = intensities.findIndex(i => Math.abs(i - waveIntensity) < 0.01)
+        const nextIndex = (currentIndex + 1) % intensities.length
+        onWaveIntensityChange(intensities[nextIndex])
       }
       return
     }
 
     // Open detail view for projects, tech, about
     setShowDetail(true)
-  }, [currentItem, currentCat, catIndex, onProfileChange, onSoundToggle, onScanlinesToggle, onColorChange])
+  }, [currentItem, currentCat, waveIntensity, onProfileChange, onSoundToggle, onScanlinesToggle, onWaveIntensityChange])
 
   // Touch / swipe handling
   const touchRef = useRef<{ x: number; y: number } | null>(null)
@@ -294,6 +326,7 @@ export function XMBInterface({
             transform: `translateX(${-catIndex * 100}px)`,
             transition: "transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
             left: "50%",
+            zIndex: 1,
           }}
           role="menubar"
           aria-label="Categories"
@@ -357,6 +390,7 @@ export function XMBInterface({
             marginTop: "40px",
             transform: `translateX(-50px) translateY(${-currentItemIndex * 52}px)`,
             transition: "transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.15s ease",
+            zIndex: 2,
           }}
           role="menu"
           aria-label={`${currentCat?.label} items`}
@@ -406,7 +440,7 @@ export function XMBInterface({
                   >
                     {item.label}
                   </span>
-                  {item.subtitle && (
+                  {(item.subtitle || currentCat.id === "settings") && (
                     <span
                       className="text-xs transition-all duration-200"
                       style={{
@@ -416,7 +450,7 @@ export function XMBInterface({
                         opacity: isActive ? 1 : 0,
                       }}
                     >
-                      {item.subtitle}
+                      {getItemSubtitle(item, currentCat.id)}
                     </span>
                   )}
                 </div>
