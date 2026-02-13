@@ -41,9 +41,10 @@ export function XMBInterface({
 
   // Load portfolio data on mount
   useEffect(() => {
-    const loadedCategories = loadPortfolioCategories()
-    setCategories(loadedCategories)
-    setItemIndices(loadedCategories.map(() => 0))
+    loadPortfolioCategories().then((loadedCategories) => {
+      setCategories(loadedCategories)
+      setItemIndices(loadedCategories.map(() => 0))
+    })
   }, [])
 
   // Build effective categories with profile-sorted projects

@@ -1,6 +1,4 @@
 // Loads portfolio data from data/portfolio.json with fallback to defaults
-import { readFileSync } from "fs"
-import { join } from "path"
 import type { UserProfile, Project } from "./projects"
 
 export interface PortfolioData {
@@ -22,14 +20,16 @@ export interface PortfolioData {
 }
 
 // Loads portfolio data from JSON file
-export function loadPortfolioData(): PortfolioData {
+export async function loadPortfolioData(): Promise<PortfolioData> {
   try {
-    const dataPath = join(process.cwd(), "data", "portfolio.json")
-    const rawData = readFileSync(dataPath, "utf-8")
-    const data = JSON.parse(rawData) as PortfolioData
+    const response = await fetch('/data/portfolio.json')
+    if (!response.ok) {
+      throw new Error(`Failed to fetch: ${response.status}`)
+    }
+    const data = await response.json() as PortfolioData
     return data
   } catch (error) {
-    console.warn("Could not load data/portfolio.json, using defaults:", error)
+    console.warn("Could not load /data/portfolio.json, using defaults:", error)
     return getDefaultData()
   }
 }
