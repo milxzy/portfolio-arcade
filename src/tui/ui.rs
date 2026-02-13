@@ -315,7 +315,7 @@ fn draw_progress(f: &mut Frame, area: ratatui::layout::Rect, app: &App) {
 
 fn draw_complete(f: &mut Frame, area: ratatui::layout::Rect, app: &App) {
     let success_message = format!(
-        "portfolio generated successfully!\n\nproject: {}\nlocation: ./{}/\ntheme: {}\nprojects: {} GitHub repos\n\nnext steps:\n• cd {}\n• npm install\n• npm run build\n• deploy to your favorite hosting platform\n\npress any key to exit",
+        "portfolio generated successfully!\n\nproject: {}\nlocation: ./{}/\ntheme: {}\nprojects: {} GitHub repos\n\nnext steps:\n• cd {}\n• npm install\n• npm run dev\n• open http://localhost:3000 in your browser\n\npress any key to exit",
         app.input_fields.project_name,
         app.input_fields.project_name,
         app.selected_theme().display_name,
