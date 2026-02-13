@@ -11,23 +11,54 @@
   },
   "projects": [
     {
-      "id": "test-project-1",
-      "label": "Test Project",
-      "subtitle": "A test portfolio project",
-      "description": "# Test Project\n\nThis is a **test project** to verify that portfolio data loads correctly from JSON in the PS3 XMB interface.\n\n## Features\n\n- Markdown rendering with `react-markdown`\n- Scrollable content area\n- Syntax highlighting for code\n- Beautiful PS3-themed styling\n\n### Code Example\n\n```javascript\nconst portfolio = {\n  name: 'Test Developer',\n  skills: ['React', 'TypeScript', 'Next.js']\n};\n```\n\n### Links\n\nCheck out the [GitHub repository](https://github.com/testuser/test-project) for more information.\n\n> This is a blockquote to test markdown rendering.\n\n## Long Content Test\n\nLorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.\n\nUt enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.\n\nDuis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.\n\nExcepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
-      "date": "2024-02-13",
-      "tags": ["React", "TypeScript", "Next.js"],
+      "id": "ecommerce-platform",
+      "label": "E-Commerce Platform",
+      "subtitle": "Full-stack shopping experience",
+      "description": "# E-Commerce Platform\n\nA modern, scalable e-commerce platform built with React and Node.js.\n\n## Tech Stack\n\n- React, TypeScript, Redux\n- Node.js, Express, PostgreSQL\n- Docker, Kubernetes, AWS\n\n## Features\n\n- Product catalog with search\n- Shopping cart and checkout\n- Payment integration with Stripe\n- Admin dashboard\n\n```typescript\ninterface Product {\n  id: string;\n  name: string;\n  price: number;\n  stock: number;\n}\n```",
+      "date": "2024-01-15",
+      "tags": ["React", "Node.js", "PostgreSQL", "Docker", "AWS"],
       "links": [
         {
           "label": "GitHub",
-          "url": "https://github.com/testuser/test-project"
-        },
-        {
-          "label": "Live Demo",
-          "url": "https://test-project.dev"
+          "url": "https://github.com/testuser/ecommerce"
         }
       ],
       "profilePriority": ["recruiter", "engineer", "stranger"]
+    },
+    {
+      "id": "ml-pipeline",
+      "label": "ML Data Pipeline",
+      "subtitle": "Real-time analytics system",
+      "description": "# Machine Learning Pipeline\n\nA distributed data processing pipeline for real-time analytics.\n\n## Stack\n\n- Python, TensorFlow, scikit-learn\n- Apache Kafka, Spark\n- Kubernetes, Prometheus\n\n## Capabilities\n\n- Stream processing at scale\n- Model training and deployment\n- Monitoring and alerting",
+      "date": "2024-02-01",
+      "tags": ["Python", "TensorFlow", "Kafka", "Kubernetes", "Prometheus"],
+      "links": [],
+      "profilePriority": ["engineer", "recruiter", "stranger"]
+    },
+    {
+      "id": "mobile-app",
+      "label": "Social Mobile App",
+      "subtitle": "Cross-platform social network",
+      "description": "# Social Mobile App\n\nA cross-platform mobile app built with React Native.\n\n## Technologies\n\n- React Native, TypeScript\n- Firebase, GraphQL\n- Jest, Detox\n\n## Features\n\n- Real-time messaging\n- Photo sharing\n- Push notifications",
+      "date": "2023-12-10",
+      "tags": ["React Native", "TypeScript", "Firebase", "GraphQL"],
+      "links": [
+        {
+          "label": "App Store",
+          "url": "https://apps.apple.com/app/test"
+        }
+      ],
+      "profilePriority": ["stranger", "recruiter", "engineer"]
+    },
+    {
+      "id": "devops-toolkit",
+      "label": "DevOps Automation",
+      "subtitle": "CI/CD and infrastructure tools",
+      "description": "# DevOps Toolkit\n\nAutomation tools for deployment and infrastructure management.\n\n## Tools Used\n\n- Terraform, Ansible\n- GitHub Actions, Jenkins\n- Nginx, Grafana\n\n## Automations\n\n- Infrastructure as code\n- Automated testing and deployment\n- Monitoring dashboards",
+      "date": "2024-02-05",
+      "tags": ["Terraform", "GitHub Actions", "Jenkins", "Nginx", "Grafana"],
+      "links": [],
+      "profilePriority": ["engineer", "recruiter", "stranger"]
     }
   ],
   "theme": "ps3"

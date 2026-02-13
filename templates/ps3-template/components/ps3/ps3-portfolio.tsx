@@ -52,6 +52,8 @@ export function PS3Portfolio() {
           onSoundToggle={() => setSoundEnabled((v) => !v)}
           scanlines={scanlines}
           onScanlinesToggle={() => setScanlines((v) => !v)}
+          waveIntensity={waveIntensity}
+          onWaveIntensityChange={setWaveIntensity}
         />
       )}
     </main>
