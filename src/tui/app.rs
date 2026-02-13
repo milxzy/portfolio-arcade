@@ -141,7 +141,7 @@ impl App {
         match self.current_screen {
             Screen::ThemeSelection => self.handle_theme_selection(key),
             Screen::ProjectDetails => self.handle_project_details(key),
-            Screen::GitHubProjects => self.handle_github_projects(key),
+            Screen::GitHubProjects => self.handle_github_projects(key).await,
             Screen::Confirmation => self.handle_confirmation(key).await?,
             Screen::Progress => {
                 // progress screen doesn't accept input
@@ -230,7 +230,7 @@ impl App {
         }
     }
 
-    fn handle_github_projects(&mut self, key: KeyCode) {
+    async fn handle_github_projects(&mut self, key: KeyCode) {
         match key {
             KeyCode::Enter => {
                 if !self.input_fields.current_github_url.trim().is_empty() {
@@ -239,7 +239,7 @@ impl App {
                     self.input_fields.current_github_url.clear();
                 } else if !self.input_fields.github_projects.is_empty() {
                     // If no URL entered but we have projects, proceed
-                    self.update_config_from_inputs();
+                    self.update_config_from_inputs().await;
                     self.current_screen = Screen::Confirmation;
                 }
             }
@@ -307,43 +307,38 @@ impl App {
         self.validate_basic_inputs() && !self.input_fields.github_projects.is_empty()
     }
 
-    fn update_config_from_inputs(&mut self) {
+    async fn update_config_from_inputs(&mut self) {
         self.config.user.name = self.input_fields.author_name.clone();
         self.config.user.title = self.input_fields.title.clone();
         self.config.cms = crate::models::CmsType::None; // Default to no CMS for GitHub-based workflow
         // Convert GitHub URLs to project data
-        self.config.projects = self.github_urls_to_projects();
+        self.config.projects = self.github_urls_to_projects().await;
     }
 
-    fn github_urls_to_projects(&self) -> Vec<crate::models::portfolio::Project> {
-        // Use the current runtime handle instead of creating a new runtime
-        let handle = tokio::runtime::Handle::current();
+    async fn github_urls_to_projects(&self) -> Vec<crate::models::portfolio::Project> {
+        let client = match crate::github::GitHubClient::new() {
+            Ok(client) => client,
+            Err(e) => {
+                eprintln!("Warning: Failed to create GitHub client: {}", e);
+                eprintln!("Projects will be created with placeholder data.");
+                return self.create_placeholder_projects();
+            }
+        };
         
-        handle.block_on(async {
-            let client = match crate::github::GitHubClient::new() {
-                Ok(client) => client,
+        let mut projects = Vec::new();
+        
+        for (i, url) in self.input_fields.github_projects.iter().enumerate() {
+            match self.fetch_github_project(&client, url, i).await {
+                Ok(project) => projects.push(project),
                 Err(e) => {
-                    eprintln!("Warning: Failed to create GitHub client: {}", e);
-                    eprintln!("Projects will be created with placeholder data.");
-                    return self.create_placeholder_projects();
-                }
-            };
-            
-            let mut projects = Vec::new();
-            
-            for (i, url) in self.input_fields.github_projects.iter().enumerate() {
-                match self.fetch_github_project(&client, url, i).await {
-                    Ok(project) => projects.push(project),
-                    Err(e) => {
-                        eprintln!("Warning: Failed to fetch data for {}: {}", url, e);
-                        eprintln!("Creating placeholder project for this repository.");
-                        projects.push(self.create_placeholder_project(url, i));
-                    }
+                    eprintln!("Warning: Failed to fetch data for {}: {}", url, e);
+                    eprintln!("Creating placeholder project for this repository.");
+                    projects.push(self.create_placeholder_project(url, i));
                 }
             }
-            
-            projects
-        })
+        }
+        
+        projects
     }
     
     async fn fetch_github_project(&self, client: &crate::github::GitHubClient, url: &str, index: usize) -> Result<crate::models::portfolio::Project> {
