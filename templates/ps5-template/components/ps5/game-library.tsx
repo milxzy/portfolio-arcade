@@ -42,15 +42,22 @@ export function GameLibrary({ profile, onBack, onSelectProject }: Props) {
     // keyboard nav
     useEffect(() => {
         const onKey = (e: KeyboardEvent) => {
-            if (e.key === "ArrowLeft") {
+            // check if user is typing in an input field
+            const activeElement = document.activeElement;
+            const isInInput = activeElement instanceof HTMLInputElement || 
+                             activeElement instanceof HTMLTextAreaElement ||
+                             activeElement?.tagName === 'INPUT' ||
+                             activeElement?.tagName === 'TEXTAREA';
+            
+            if (e.key === "ArrowLeft" && !isInInput) {
                 setIdx((prev) => Math.max(0, prev - 1));
-            } else if (e.key === "ArrowRight") {
+            } else if (e.key === "ArrowRight" && !isInInput) {
                 setIdx((prev) => Math.min(projects.length - 1, prev + 1));
-            } else if (e.key === "Enter" || e.key === " ") {
+            } else if ((e.key === "Enter" || e.key === " ") && !isInInput) {
                 if (projects[idx]) {
                     onSelectProject(projects[idx]);
                 }
-            } else if (e.key === "Escape" || e.key === "Backspace") {
+            } else if (e.key === "Escape" || (e.key === "Backspace" && !isInInput)) {
                 onBack();
             }
         };

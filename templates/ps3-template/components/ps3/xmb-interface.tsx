@@ -79,8 +79,15 @@ export function XMBInterface({
   // Keyboard navigation
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
+      // check if user is typing in an input field
+      const activeElement = document.activeElement;
+      const isInInput = activeElement instanceof HTMLInputElement || 
+                       activeElement instanceof HTMLTextAreaElement ||
+                       activeElement?.tagName === 'INPUT' ||
+                       activeElement?.tagName === 'TEXTAREA';
+      
       if (showDetail) {
-        if (e.key === "Escape" || e.key === "Backspace") {
+        if (e.key === "Escape" || (e.key === "Backspace" && !isInInput)) {
           e.preventDefault()
           setShowDetail(false)
         }
@@ -89,44 +96,56 @@ export function XMBInterface({
 
       switch (e.key) {
         case "ArrowLeft":
-          e.preventDefault()
-          setTransitioning(true)
-          setCatIndex((prev) => Math.max(0, prev - 1))
+          if (!isInInput) {
+            e.preventDefault()
+            setTransitioning(true)
+            setCatIndex((prev) => Math.max(0, prev - 1))
+          }
           setTimeout(() => setTransitioning(false), 150)
           break
         case "ArrowRight":
-          e.preventDefault()
-          setTransitioning(true)
-          setCatIndex((prev) => Math.min(categories.length - 1, prev + 1))
-          setTimeout(() => setTransitioning(false), 150)
+          if (!isInInput) {
+            e.preventDefault()
+            setTransitioning(true)
+            setCatIndex((prev) => Math.min(categories.length - 1, prev + 1))
+            setTimeout(() => setTransitioning(false), 150)
+          }
           break
         case "ArrowUp":
-          e.preventDefault()
-          setItemIndices((prev) => {
-            const copy = [...prev]
-            copy[catIndex] = Math.max(0, copy[catIndex] - 1)
-            return copy
-          })
+          if (!isInInput) {
+            e.preventDefault()
+            setItemIndices((prev) => {
+              const copy = [...prev]
+              copy[catIndex] = Math.max(0, copy[catIndex] - 1)
+              return copy
+            })
+          }
           break
         case "ArrowDown":
-          e.preventDefault()
-          setItemIndices((prev) => {
-            const copy = [...prev]
-            copy[catIndex] = Math.min(
-              currentCat.items.length - 1,
-              copy[catIndex] + 1
-            )
-            return copy
-          })
+          if (!isInInput) {
+            e.preventDefault()
+            setItemIndices((prev) => {
+              const copy = [...prev]
+              copy[catIndex] = Math.min(
+                currentCat.items.length - 1,
+                copy[catIndex] + 1
+              )
+              return copy
+            })
+          }
           break
         case "Enter":
         case " ":
-          e.preventDefault()
-          handleSelect()
+          if (!isInInput) {
+            e.preventDefault()
+            handleSelect()
+          }
           break
         case "Escape":
         case "Backspace":
-          e.preventDefault()
+          if (!isInInput) {
+            e.preventDefault()
+          }
           break
       }
     }

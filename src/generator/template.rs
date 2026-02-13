@@ -20,7 +20,22 @@ impl TemplateGenerator {
     pub fn new(project_name: String, config: PortfolioConfig) -> Result<Self> {
         // get the current directory where templates should be located
         let current_dir = env::current_dir()?;
-        let templates_dir = current_dir.join("templates");
+        
+        // try multiple possible template locations with fallback
+        let possible_template_dirs = vec![
+            current_dir.join("templates"),
+            PathBuf::from("templates"),
+            PathBuf::from("./templates"),
+        ];
+        
+        let templates_dir = possible_template_dirs
+            .into_iter()
+            .find(|dir| dir.exists())
+            .ok_or_else(|| anyhow!(
+                "templates directory not found. Tried:\n- {}/templates\n- ./templates\n- templates/\nCurrent directory: {}",
+                current_dir.display(),
+                current_dir.display()
+            ))?;
 
         // find the selected theme
         let theme = Theme::find_by_id(&config.theme)
