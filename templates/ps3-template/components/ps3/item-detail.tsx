@@ -1,9 +1,18 @@
 "use client"
 
-import { useEffect } from "react"
+import { useEffect, useMemo } from "react"
 import type { XMBItem } from "@/lib/xmb-data"
 import { ArrowLeft, ExternalLink } from "lucide-react"
 import ReactMarkdown from "react-markdown"
+import remarkGfm from "remark-gfm"
+import remarkBreaks from "remark-breaks"
+
+// Normalize markdown content - handles Windows line endings
+function normalizeMarkdown(content: string | undefined): string {
+  if (!content) return "";
+  // Normalize Windows line endings to Unix style
+  return content.replace(/\r\n/g, "\n").replace(/\r/g, "\n");
+}
 
 interface ItemDetailProps {
   item: XMBItem
@@ -12,6 +21,12 @@ interface ItemDetailProps {
 }
 
 export function ItemDetail({ item, categoryId, onBack }: ItemDetailProps) {
+  // Normalize the markdown content
+  const normalizedDescription = useMemo(
+    () => normalizeMarkdown(item.description),
+    [item.description]
+  )
+  
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
       // check if user is typing in an input field
@@ -99,27 +114,31 @@ export function ItemDetail({ item, categoryId, onBack }: ItemDetailProps) {
               style={{ color: "rgba(200,200,200,0.8)" }}
             >
               <ReactMarkdown
+                remarkPlugins={[remarkGfm, remarkBreaks]}
                 components={{
                   h1: ({ node, ...props }) => (
-                    <h1 className="text-xl font-bold mb-3 mt-4" style={{ color: "#e8e8e8" }} {...props} />
+                    <h1 className="text-xl font-bold mb-3 mt-4 pb-2" style={{ color: "#e8e8e8", borderBottom: "1px solid rgba(60,120,220,0.2)" }} {...props} />
                   ),
                   h2: ({ node, ...props }) => (
-                    <h2 className="text-lg font-semibold mb-2 mt-3" style={{ color: "#d0d0d0" }} {...props} />
+                    <h2 className="text-lg font-semibold mb-2 mt-3 pb-1" style={{ color: "#d0d0d0", borderBottom: "1px solid rgba(60,120,220,0.1)" }} {...props} />
                   ),
                   h3: ({ node, ...props }) => (
                     <h3 className="text-base font-medium mb-2 mt-2" style={{ color: "#c0c0c0" }} {...props} />
                   ),
+                  h4: ({ node, ...props }) => (
+                    <h4 className="text-sm font-medium mb-2 mt-2" style={{ color: "#b0b0b0" }} {...props} />
+                  ),
                   p: ({ node, ...props }) => (
-                    <p className="mb-3" style={{ color: "rgba(200,200,200,0.8)" }} {...props} />
+                    <p className="mb-4 leading-7" style={{ color: "rgba(200,200,200,0.8)" }} {...props} />
                   ),
                   ul: ({ node, ...props }) => (
-                    <ul className="list-disc list-inside mb-3 space-y-1" style={{ color: "rgba(200,200,200,0.8)" }} {...props} />
+                    <ul className="list-disc pl-5 mb-4 space-y-1" style={{ color: "rgba(200,200,200,0.8)" }} {...props} />
                   ),
                   ol: ({ node, ...props }) => (
-                    <ol className="list-decimal list-inside mb-3 space-y-1" style={{ color: "rgba(200,200,200,0.8)" }} {...props} />
+                    <ol className="list-decimal pl-5 mb-4 space-y-1" style={{ color: "rgba(200,200,200,0.8)" }} {...props} />
                   ),
-                  li: ({ node, ...props }) => (
-                    <li style={{ color: "rgba(200,200,200,0.8)" }} {...props} />
+                  li: ({ node, children, ...props }) => (
+                    <li className="pl-1" style={{ color: "rgba(200,200,200,0.8)" }} {...props}>{children}</li>
                   ),
                   code: ({ node, className, children, ...props }) => {
                     const isInline = !className?.includes("language-")
@@ -149,7 +168,7 @@ export function ItemDetail({ item, categoryId, onBack }: ItemDetailProps) {
                   },
                   pre: ({ node, ...props }) => (
                     <pre
-                      className="mb-3 p-3 rounded overflow-x-auto"
+                      className="mb-4 p-4 rounded overflow-x-auto"
                       style={{
                         backgroundColor: "rgba(20,25,40,0.6)",
                         border: "1px solid rgba(60,120,220,0.15)",
@@ -168,7 +187,7 @@ export function ItemDetail({ item, categoryId, onBack }: ItemDetailProps) {
                   ),
                   blockquote: ({ node, ...props }) => (
                     <blockquote
-                      className="border-l-2 pl-3 italic mb-3"
+                      className="border-l-2 pl-4 my-4"
                       style={{
                         borderColor: "rgba(60,120,220,0.3)",
                         color: "rgba(180,180,200,0.7)",
@@ -176,9 +195,49 @@ export function ItemDetail({ item, categoryId, onBack }: ItemDetailProps) {
                       {...props}
                     />
                   ),
+                  strong: ({ node, ...props }) => (
+                    <strong style={{ color: "#e0e0e0", fontWeight: 600 }} {...props} />
+                  ),
+                  em: ({ node, ...props }) => (
+                    <em style={{ color: "rgba(200,200,200,0.85)" }} {...props} />
+                  ),
+                  hr: ({ node, ...props }) => (
+                    <hr className="my-6" style={{ borderColor: "rgba(60,120,220,0.2)" }} {...props} />
+                  ),
+                  table: ({ node, ...props }) => (
+                    <div className="overflow-x-auto mb-4">
+                      <table className="min-w-full border-collapse" style={{ border: "1px solid rgba(60,120,220,0.2)" }} {...props} />
+                    </div>
+                  ),
+                  thead: ({ node, ...props }) => (
+                    <thead style={{ backgroundColor: "rgba(60,120,220,0.1)" }} {...props} />
+                  ),
+                  th: ({ node, ...props }) => (
+                    <th className="px-3 py-2 text-left text-xs font-semibold" style={{ border: "1px solid rgba(60,120,220,0.2)", color: "#e0e0e0" }} {...props} />
+                  ),
+                  td: ({ node, ...props }) => (
+                    <td className="px-3 py-2 text-xs" style={{ border: "1px solid rgba(60,120,220,0.2)", color: "rgba(200,200,200,0.8)" }} {...props} />
+                  ),
+                  del: ({ node, ...props }) => (
+                    <del style={{ color: "rgba(150,150,150,0.6)" }} {...props} />
+                  ),
+                  input: ({ node, ...props }) => (
+                    <input
+                      className="mr-2"
+                      style={{ accentColor: "rgba(100,160,240,0.9)" }}
+                      disabled
+                      {...props}
+                    />
+                  ),
+                  img: ({ node, ...props }) => (
+                    <img
+                      className="max-w-full h-auto rounded my-4"
+                      {...props}
+                    />
+                  ),
                 }}
               >
-                {item.description}
+                {normalizedDescription}
               </ReactMarkdown>
             </div>
           )}
