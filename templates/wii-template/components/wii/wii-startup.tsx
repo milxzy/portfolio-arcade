@@ -38,7 +38,7 @@ export function WiiStartup({ onComplete }: { onComplete: () => void }) {
           }}
         >
           <svg width="120" height="50" viewBox="0 0 120 50" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <text x="10" y="40" fontFamily="sans-serif" fontWeight="800" fontSize="42" fill="#8B8B8B" letterSpacing="-1">
+            <text x="50%" y="40" textAnchor="middle" fontFamily="sans-serif" fontWeight="800" fontSize="42" fill="#8B8B8B" letterSpacing="-1">
               Wii
             </text>
           </svg>

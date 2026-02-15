@@ -29,14 +29,14 @@ export function ContactView() {
             <p className="text-xs text-[#7A8A9A]">{"You've got a new memo in your inbox"}</p>
           </div>
         ) : (
-          <form onSubmit={handleSubmit} className="space-y-3">
-            <div className="grid grid-cols-2 gap-3">
+          <form onSubmit={handleSubmit} className="space-y-2 sm:space-y-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
               <input
                 type="text"
                 placeholder="Your Name"
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                className="rounded-xl bg-white/70 px-4 py-3 text-sm text-[#2A3A4A] placeholder:text-[#AAB8C8] outline-none focus:ring-2 focus:ring-[#3B9BD9]/30 transition-all"
+                className="rounded-lg sm:rounded-xl bg-white/70 px-3 sm:px-4 py-2.5 sm:py-3 text-sm text-[#2A3A4A] placeholder:text-[#AAB8C8] outline-none focus:ring-2 focus:ring-[#3B9BD9]/30 transition-all"
                 required
               />
               <input
@@ -44,7 +44,7 @@ export function ContactView() {
                 placeholder="Email"
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                className="rounded-xl bg-white/70 px-4 py-3 text-sm text-[#2A3A4A] placeholder:text-[#AAB8C8] outline-none focus:ring-2 focus:ring-[#3B9BD9]/30 transition-all"
+                className="rounded-lg sm:rounded-xl bg-white/70 px-3 sm:px-4 py-2.5 sm:py-3 text-sm text-[#2A3A4A] placeholder:text-[#AAB8C8] outline-none focus:ring-2 focus:ring-[#3B9BD9]/30 transition-all"
                 required
               />
             </div>
@@ -53,12 +53,12 @@ export function ContactView() {
               value={formData.message}
               onChange={(e) => setFormData({ ...formData, message: e.target.value })}
               rows={4}
-              className="w-full rounded-xl bg-white/70 px-4 py-3 text-sm text-[#2A3A4A] placeholder:text-[#AAB8C8] outline-none focus:ring-2 focus:ring-[#3B9BD9]/30 resize-none transition-all"
+              className="w-full rounded-lg sm:rounded-xl bg-white/70 px-3 sm:px-4 py-2.5 sm:py-3 text-sm text-[#2A3A4A] placeholder:text-[#AAB8C8] outline-none focus:ring-2 focus:ring-[#3B9BD9]/30 resize-none transition-all"
               required
             />
             <button
               type="submit"
-              className="flex items-center gap-2 rounded-full bg-[#3B9BD9] px-6 py-2.5 text-sm font-bold text-white hover:bg-[#2E8BC0] active:scale-[0.98] transition-all"
+              className="flex items-center gap-2 rounded-full bg-[#3B9BD9] px-4 sm:px-6 py-2 sm:py-2.5 text-xs sm:text-sm font-bold text-white hover:bg-[#2E8BC0] active:scale-[0.98] transition-all"
             >
               <Send size={14} />
               Send Message

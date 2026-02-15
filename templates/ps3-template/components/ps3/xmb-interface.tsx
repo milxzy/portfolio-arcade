@@ -13,6 +13,7 @@ import {
 } from "@/lib/xmb-data"
 import { XMBIcon } from "./xmb-icons"
 import { ItemDetail } from "./item-detail"
+import { useSoundEffects } from "@/hooks/use-sound-effects"
 
 // Hook to detect mobile viewport
 function useIsMobile() {
@@ -58,6 +59,9 @@ export function XMBInterface({
   const containerRef = useRef<HTMLDivElement>(null)
   const isMobile = useIsMobile()
   
+  // Sound effects
+  const { playNavigate, playCategoryChange, playSelect, playBack, playToggle } = useSoundEffects(soundEnabled)
+  
   // Responsive sizing values
   const catWidth = isMobile ? 70 : 100
   const catIconSize = isMobile ? 28 : 36
@@ -99,6 +103,8 @@ export function XMBInterface({
         return scanlines ? "ON - CRT effect active" : "OFF - CRT effect disabled"
       }
       if (item.id === "settings-particles") {
+        // Round to avoid floating point issues with object key lookup
+        const rounded = Math.round(waveIntensity * 10) / 10
         const intensityLabels: Record<number, string> = {
           0.3: "Very Low",
           0.6: "Low",
@@ -106,7 +112,7 @@ export function XMBInterface({
           1.5: "High",
           2.0: "Very High",
         }
-        const label = intensityLabels[waveIntensity] || "Medium"
+        const label = intensityLabels[rounded] || "Medium"
         return `${label} - Press Enter to cycle`
       }
     }
@@ -137,6 +143,48 @@ export function XMBInterface({
     return () => clearInterval(id)
   }, [])
 
+  // Handle item selection
+  const handleSelect = useCallback(() => {
+    if (!currentItem) return
+
+    // Handle user profile selection
+    if (currentCat.id === "users") {
+      const profileId = currentItem.id as UserProfile
+      if (["recruiter", "engineer", "stranger"].includes(profileId)) {
+        playSelect()
+        setProfile(profileId)
+        onProfileChange(profileId)
+        // Move to projects category
+        setCatIndex(1)
+      }
+      return
+    }
+
+    // Handle settings toggles
+    if (currentCat.id === "settings") {
+      playToggle()
+      if (currentItem.id === "settings-sound") {
+        onSoundToggle()
+      } else if (currentItem.id === "settings-scanlines") {
+        onScanlinesToggle()
+      } else if (currentItem.id === "settings-particles") {
+        // Cycle through intensity levels: 0.3 -> 0.6 -> 1.0 -> 1.5 -> 2.0 -> 0.3
+        let nextIntensity: number
+        if (waveIntensity < 0.5) nextIntensity = 0.6
+        else if (waveIntensity < 0.8) nextIntensity = 1.0
+        else if (waveIntensity < 1.3) nextIntensity = 1.5
+        else if (waveIntensity < 1.8) nextIntensity = 2.0
+        else nextIntensity = 0.3
+        onWaveIntensityChange(nextIntensity)
+      }
+      return
+    }
+
+    // Open detail view for projects, tech, about
+    playSelect()
+    setShowDetail(true)
+  }, [currentItem, currentCat, waveIntensity, onProfileChange, onSoundToggle, onScanlinesToggle, onWaveIntensityChange, playSelect, playToggle])
+
   // Keyboard navigation
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
@@ -150,6 +198,7 @@ export function XMBInterface({
       if (showDetail) {
         if (e.key === "Escape" || (e.key === "Backspace" && !isInInput)) {
           e.preventDefault()
+          playBack()
           setShowDetail(false)
         }
         return
@@ -163,6 +212,7 @@ export function XMBInterface({
             setCatIndex((prev) => {
               const newIndex = Math.max(0, prev - 1)
               if (newIndex !== prev) {
+                playCategoryChange()
                 setItemIndices((indices) => {
                   const copy = [...indices]
                   copy[newIndex] = 0
@@ -181,6 +231,7 @@ export function XMBInterface({
             setCatIndex((prev) => {
               const newIndex = Math.min(effectiveCategories.length - 1, prev + 1)
               if (newIndex !== prev) {
+                playCategoryChange()
                 setItemIndices((indices) => {
                   const copy = [...indices]
                   copy[newIndex] = 0
@@ -195,6 +246,7 @@ export function XMBInterface({
         case "ArrowUp":
           if (!isInInput) {
             e.preventDefault()
+            playNavigate()
             setItemIndices((prev) => {
               const copy = [...prev]
               copy[catIndex] = Math.max(0, copy[catIndex] - 1)
@@ -205,6 +257,7 @@ export function XMBInterface({
         case "ArrowDown":
           if (!isInInput) {
             e.preventDefault()
+            playNavigate()
             setItemIndices((prev) => {
               const copy = [...prev]
               copy[catIndex] = Math.min(
@@ -233,42 +286,7 @@ export function XMBInterface({
 
     window.addEventListener("keydown", handleKey)
     return () => window.removeEventListener("keydown", handleKey)
-  }, [catIndex, effectiveCategories.length, currentCat?.items.length, showDetail, currentItem])
-
-  const handleSelect = useCallback(() => {
-    if (!currentItem) return
-
-    // Handle user profile selection
-    if (currentCat.id === "users") {
-      const profileId = currentItem.id as UserProfile
-      if (["recruiter", "engineer", "stranger"].includes(profileId)) {
-        setProfile(profileId)
-        onProfileChange(profileId)
-        // Move to projects category
-        setCatIndex(1)
-      }
-      return
-    }
-
-    // Handle settings toggles
-    if (currentCat.id === "settings") {
-      if (currentItem.id === "settings-sound") {
-        onSoundToggle()
-      } else if (currentItem.id === "settings-scanlines") {
-        onScanlinesToggle()
-      } else if (currentItem.id === "settings-particles") {
-        // Cycle through intensity: 0.3 -> 0.6 -> 1.0 -> 1.5 -> 2.0 -> back to 0.3
-        const intensities = [0.3, 0.6, 1.0, 1.5, 2.0]
-        const currentIndex = intensities.findIndex(i => Math.abs(i - waveIntensity) < 0.01)
-        const nextIndex = (currentIndex + 1) % intensities.length
-        onWaveIntensityChange(intensities[nextIndex])
-      }
-      return
-    }
-
-    // Open detail view for projects, tech, about
-    setShowDetail(true)
-  }, [currentItem, currentCat, waveIntensity, onProfileChange, onSoundToggle, onScanlinesToggle, onWaveIntensityChange])
+  }, [catIndex, effectiveCategories.length, currentCat?.items.length, showDetail, currentItem, playNavigate, playCategoryChange, playBack, handleSelect])
 
   // Touch / swipe handling
   const touchRef = useRef<{ x: number; y: number } | null>(null)
@@ -297,6 +315,7 @@ export function XMBInterface({
           setCatIndex((prev) => {
             const newIndex = Math.max(0, prev - 1)
             if (newIndex !== prev) {
+              playCategoryChange()
               setItemIndices((indices) => {
                 const copy = [...indices]
                 copy[newIndex] = 0
@@ -309,6 +328,7 @@ export function XMBInterface({
           setCatIndex((prev) => {
             const newIndex = Math.min(effectiveCategories.length - 1, prev + 1)
             if (newIndex !== prev) {
+              playCategoryChange()
               setItemIndices((indices) => {
                 const copy = [...indices]
                 copy[newIndex] = 0
@@ -320,6 +340,7 @@ export function XMBInterface({
         }
       } else if (absDy > absDx && absDy > threshold) {
         // Vertical swipe
+        playNavigate()
         if (dy > 0) {
           setItemIndices((prev) => {
             const copy = [...prev]
@@ -344,14 +365,17 @@ export function XMBInterface({
       container.removeEventListener("touchstart", handleTouchStart)
       container.removeEventListener("touchend", handleTouchEnd)
     }
-  }, [catIndex, effectiveCategories.length, currentCat?.items.length])
+  }, [catIndex, effectiveCategories.length, currentCat?.items.length, playNavigate, playCategoryChange])
 
   if (showDetail && currentItem) {
     return (
       <ItemDetail
         item={currentItem}
         categoryId={currentCat.id}
-        onBack={() => setShowDetail(false)}
+        onBack={() => {
+          playBack()
+          setShowDetail(false)
+        }}
       />
     )
   }
