@@ -14,6 +14,20 @@ import {
 import { XMBIcon } from "./xmb-icons"
 import { ItemDetail } from "./item-detail"
 
+// Hook to detect mobile viewport
+function useIsMobile() {
+  const [isMobile, setIsMobile] = useState(false)
+  
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 640)
+    checkMobile()
+    window.addEventListener("resize", checkMobile)
+    return () => window.removeEventListener("resize", checkMobile)
+  }, [])
+  
+  return isMobile
+}
+
 interface XMBInterfaceProps {
   onProfileChange: (profile: UserProfile) => void
   onColorChange: (index: number) => void
@@ -42,6 +56,15 @@ export function XMBInterface({
   const [showDetail, setShowDetail] = useState(false)
   const [transitioning, setTransitioning] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
+  const isMobile = useIsMobile()
+  
+  // Responsive sizing values
+  const catWidth = isMobile ? 70 : 100
+  const catIconSize = isMobile ? 28 : 36
+  const catIconSizeInactive = isMobile ? 22 : 28
+  const itemSpacing = isMobile ? 44 : 52
+  const itemTopOffset = isMobile ? 32 : 40
+  const itemAboveOffset = isMobile ? -70 : -90
 
   // Load portfolio data on mount
   useEffect(() => {
@@ -341,15 +364,15 @@ export function XMBInterface({
       aria-label="XrossMediaBar Navigation"
     >
       {/* Top bar: clock + profile */}
-      <header className="flex items-center justify-between px-6 py-3 z-20">
+      <header className="flex items-center justify-between px-3 sm:px-6 py-2 sm:py-3 z-20">
         <div
-          className="text-xs tracking-wider font-mono"
+          className="text-[10px] sm:text-xs tracking-wider font-mono"
           style={{ color: "rgba(200,200,200,0.6)" }}
         >
           {profile.toUpperCase()} PROFILE
         </div>
         <time
-          className="text-xs tracking-wider font-mono"
+          className="text-[10px] sm:text-xs tracking-wider font-mono"
           style={{ color: "rgba(200,200,200,0.6)" }}
           dateTime={new Date().toISOString()}
         >
@@ -363,7 +386,7 @@ export function XMBInterface({
         <nav
           className="absolute flex items-center gap-0"
           style={{
-            transform: `translateX(${-catIndex * 100}px)`,
+            transform: `translateX(${-catIndex * catWidth}px)`,
             transition: "transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
             left: "50%",
             zIndex: 10,
@@ -377,8 +400,9 @@ export function XMBInterface({
             return (
               <button
                 key={cat.id}
-                className="flex flex-col items-center justify-center w-[100px] outline-none focus-visible:ring-2 focus-visible:ring-offset-2 transition-all duration-300"
+                className="flex flex-col items-center justify-center outline-none focus-visible:ring-2 focus-visible:ring-offset-2 transition-all duration-300"
                 style={{
+                  width: `${catWidth}px`,
                   opacity: isActive ? 1 : Math.max(0.15, 0.5 - distance * 0.15),
                   transform: isActive ? "scale(1)" : `scale(${Math.max(0.6, 0.85 - distance * 0.08)})`,
                   filter: isActive ? "none" : "brightness(0.7)",
@@ -403,7 +427,7 @@ export function XMBInterface({
                 <XMBIcon
                   name={cat.icon}
                   className="transition-all duration-300"
-                  size={isActive ? 36 : 28}
+                  size={isActive ? catIconSize : catIconSizeInactive}
                   style={{
                     color: isActive ? "#e0e0e0" : "#666",
                     filter: isActive
@@ -412,7 +436,7 @@ export function XMBInterface({
                   }}
                 />
                 <span
-                  className="mt-2 text-xs tracking-wider font-medium transition-all duration-300"
+                  className="mt-1 sm:mt-2 text-[10px] sm:text-xs tracking-wider font-medium transition-all duration-300"
                   style={{
                     color: isActive ? "#e0e0e0" : "#555",
                     opacity: isActive ? 1 : 0,
@@ -432,7 +456,7 @@ export function XMBInterface({
           style={{
             left: "50%",
             top: "50%",
-            transform: "translateX(-50px)",
+            transform: `translateX(${isMobile ? "-35px" : "-50px"})`,
             zIndex: 15,
           }}
           role="menu"
@@ -444,25 +468,30 @@ export function XMBInterface({
             const distance = Math.abs(relativePosition)
             
             // Calculate Y position: items above go negative (above category bar), items below go positive
-            // Selected item (relativePosition === 0) is at 40px below center
-            // Items above: -90px, -142px, -194px, etc. (52px spacing going up)
+            // Selected item (relativePosition === 0) is at itemTopOffset below center
+            // Items above use itemAboveOffset as starting point
             // Items below: need extra offset to account for selected item's expanded height (subtitle + tags)
             let yOffset: number
             if (relativePosition < 0) {
               // Items above the selected one
-              yOffset = -90 + (relativePosition + 1) * 52
+              yOffset = itemAboveOffset + (relativePosition + 1) * itemSpacing
             } else if (relativePosition === 0) {
               // Selected item
-              yOffset = 40
+              yOffset = itemTopOffset
             } else {
-              // Items below - add extra 40px to account for selected item's expanded content
-              yOffset = 40 + 40 + relativePosition * 52
+              // Items below - add extra offset to account for selected item's expanded content
+              const extraOffset = isMobile ? 32 : 40
+              yOffset = itemTopOffset + extraOffset + relativePosition * itemSpacing
             }
+            
+            // On mobile, show fewer items to reduce clutter
+            const maxDistance = isMobile ? 2 : 4
+            if (distance > maxDistance) return null
             
             return (
               <button
                 key={item.id}
-                className="absolute flex items-center gap-3 py-2 px-3 rounded-sm outline-none focus-visible:ring-1 text-left min-w-[280px] md:min-w-[350px]"
+                className="absolute flex items-center gap-2 sm:gap-3 py-1.5 sm:py-2 px-2 sm:px-3 rounded-sm outline-none focus-visible:ring-1 text-left"
                 style={{
                   opacity: isActive ? 1 : Math.max(0.1, 0.5 - distance * 0.1),
                   transform: `translateY(${yOffset}px) scale(${isActive ? 1 : Math.max(0.85, 0.95 - distance * 0.02)})`,
@@ -470,6 +499,7 @@ export function XMBInterface({
                   background: isActive
                     ? "linear-gradient(90deg, rgba(60,120,220,0.15) 0%, rgba(60,120,220,0) 100%)"
                     : "transparent",
+                  maxWidth: isMobile ? "calc(100vw - 40px)" : "none",
                 }}
                 onClick={() => {
                   setItemIndices((prev) => {
@@ -485,7 +515,7 @@ export function XMBInterface({
               >
                 {/* Thin selection indicator */}
                 <div
-                  className="w-0.5 h-8 rounded-full shrink-0"
+                  className="w-0.5 h-6 sm:h-8 rounded-full shrink-0"
                   style={{
                     backgroundColor: isActive
                       ? "rgba(100,160,255,0.8)"
@@ -498,7 +528,7 @@ export function XMBInterface({
                 />
                 <div className="flex flex-col gap-0.5">
                   <span
-                    className="text-sm font-medium tracking-wide"
+                    className="text-xs sm:text-sm font-medium tracking-wide whitespace-nowrap"
                     style={{ 
                       color: isActive ? "#f0f0f0" : "#888",
                       transition: "color 0.25s ease",
@@ -508,7 +538,7 @@ export function XMBInterface({
                   </span>
                   {(item.subtitle || currentCat.id === "settings") && (
                     <span
-                      className="text-xs"
+                      className="text-[10px] sm:text-xs whitespace-nowrap"
                       style={{
                         color: isActive ? "rgba(200,200,200,0.6)" : "rgba(150,150,150,0.4)",
                         maxHeight: isActive ? "20px" : "0px",
@@ -521,13 +551,13 @@ export function XMBInterface({
                     </span>
                   )}
                 </div>
-                {/* Tags for active project items */}
-                {isActive && item.tags && (
-                  <div className="flex gap-1.5 ml-auto flex-wrap justify-end max-w-[200px] items-center">
+                {/* Tags for active project items - hidden on mobile */}
+                {isActive && item.tags && !isMobile && (
+                  <div className="flex gap-1.5 ml-auto items-center flex-nowrap">
                     {item.tags.slice(0, 3).map((tag) => (
                       <span
                         key={tag}
-                        className="text-[10px] px-1.5 py-0.5 rounded-sm tracking-wide"
+                        className="text-[10px] px-1.5 py-0.5 rounded-sm tracking-wide whitespace-nowrap"
                         style={{
                           backgroundColor: "rgba(60,120,220,0.15)",
                           color: "rgba(160,190,240,0.8)",
@@ -539,7 +569,7 @@ export function XMBInterface({
                     ))}
                     {item.tags.length > 3 && (
                       <span
-                        className="text-[10px] px-1.5 py-0.5 rounded-sm tracking-wide"
+                        className="text-[10px] px-1.5 py-0.5 rounded-sm tracking-wide whitespace-nowrap"
                         style={{
                           backgroundColor: "rgba(100,100,100,0.15)",
                           color: "rgba(180,180,180,0.7)",
@@ -551,6 +581,19 @@ export function XMBInterface({
                     )}
                   </div>
                 )}
+                {/* Show tag count badge on mobile */}
+                {isActive && item.tags && isMobile && (
+                  <span
+                    className="text-[9px] px-1.5 py-0.5 rounded-sm ml-auto shrink-0"
+                    style={{
+                      backgroundColor: "rgba(60,120,220,0.15)",
+                      color: "rgba(160,190,240,0.8)",
+                      border: "1px solid rgba(60,120,220,0.2)",
+                    }}
+                  >
+                    {item.tags.length} tags
+                  </span>
+                )}
               </button>
             )
           })}
@@ -558,23 +601,23 @@ export function XMBInterface({
       </div>
 
       {/* Bottom info bar */}
-      <footer className="px-6 py-3 z-20">
+      <footer className="px-3 sm:px-6 py-2 sm:py-3 z-20">
         <div className="flex items-center justify-between">
           <div
-            className="text-[10px] tracking-widest uppercase font-mono"
+            className="text-[9px] sm:text-[10px] tracking-widest uppercase font-mono"
             style={{ color: "rgba(150,150,150,0.4)" }}
           >
             {currentItem?.date || ""}
           </div>
           <div
-            className="flex items-center gap-4 text-[10px] tracking-wider font-mono"
+            className="flex items-center gap-2 sm:gap-4 text-[9px] sm:text-[10px] tracking-wider font-mono"
             style={{ color: "rgba(150,150,150,0.4)" }}
           >
-            <span className="hidden md:inline">
+            <span className="hidden sm:inline">
               {"<"} {">"} Navigate
             </span>
-            <span className="hidden md:inline">Enter: Select</span>
-            <span className="md:hidden">Tap to select</span>
+            <span className="hidden sm:inline">Enter: Select</span>
+            <span className="sm:hidden">Swipe or tap</span>
           </div>
         </div>
       </footer>
