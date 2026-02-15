@@ -1,3 +1,15 @@
+/**
+ * Channel - A clickable tile on the Wii menu grid
+ * 
+ * @property id - Unique identifier used for routing and filtering
+ * @property title - Main text displayed on the channel
+ * @property subtitle - Secondary text below the title (optional)
+ * @property icon - Icon name from lucide-react (e.g., "briefcase", "code", "globe")
+ * @property color - CSS gradient for the channel background
+ * @property textColor - Text color (use contrast with background)
+ * @property row - Grid row position (0-indexed)
+ * @property col - Grid column position (0-indexed, max 3)
+ */
 export type Channel = {
   id: string
   title: string
@@ -135,6 +147,22 @@ export const channels: Channel[] = [
   },
 ]
 
+/**
+ * Project - A portfolio project (loaded from /public/data/portfolio.json)
+ * 
+ * NOTE: Projects are defined in /public/data/portfolio.json, not here.
+ *       See portfolio.schema.json for full documentation.
+ * 
+ * @property id - Unique identifier (lowercase with hyphens)
+ * @property title - Project name
+ * @property tagline - Short catchy description (1 line)
+ * @property description - Longer description (2-4 sentences)
+ * @property techStack - Array of technology names (e.g., ["React", "TypeScript"])
+ * @property liveUrl - URL to deployed project (optional)
+ * @property githubUrl - URL to GitHub repo (optional)
+ * @property category - Array of channel IDs: "web-apps", "open-source", "creative-lab", "archive"
+ * @property featured - If true, shows in recruiter/featured view (optional)
+ */
 export type Project = {
   id: string
   title: string
@@ -147,27 +175,52 @@ export type Project = {
   featured?: boolean
 }
 
+/**
+ * Skill - A technology/skill displayed in the Tech Stack channel
+ * 
+ * @property name - Display name of the technology (e.g., "TypeScript")
+ * @property icon - 2-letter abbreviation shown in the icon badge (e.g., "TS")
+ * @property category - Group this skill belongs to: "Languages", "Frameworks", "Tools", or "Cloud"
+ */
 export type Skill = {
   name: string
-  level: number
   icon: string
   category: string
 }
 
+/**
+ * Skills array - Add your technologies here
+ * 
+ * Categories:
+ *   - "Languages"  - Programming languages (TypeScript, Python, etc.)
+ *   - "Frameworks" - Libraries and frameworks (React, Next.js, etc.)
+ *   - "Tools"      - Development tools and databases (Docker, PostgreSQL, etc.)
+ *   - "Cloud"      - Cloud platforms and services (AWS, Vercel, etc.)
+ * 
+ * Example:
+ *   { name: "TypeScript", icon: "TS", category: "Languages" }
+ */
 export const skills: Skill[] = [
-  { name: "TypeScript", level: 95, icon: "TS", category: "Languages" },
-  { name: "JavaScript", level: 95, icon: "JS", category: "Languages" },
-  { name: "Python", level: 75, icon: "PY", category: "Languages" },
-  { name: "Rust", level: 45, icon: "RS", category: "Languages" },
-  { name: "React", level: 95, icon: "Re", category: "Frameworks" },
-  { name: "Next.js", level: 92, icon: "Nx", category: "Frameworks" },
-  { name: "Node.js", level: 88, icon: "No", category: "Frameworks" },
-  { name: "Tailwind CSS", level: 90, icon: "TW", category: "Frameworks" },
-  { name: "PostgreSQL", level: 82, icon: "PG", category: "Tools" },
-  { name: "Redis", level: 70, icon: "RD", category: "Tools" },
-  { name: "Docker", level: 75, icon: "DK", category: "Tools" },
-  { name: "Git", level: 92, icon: "GT", category: "Tools" },
-  { name: "AWS", level: 70, icon: "AW", category: "Cloud" },
-  { name: "Vercel", level: 90, icon: "VC", category: "Cloud" },
-  { name: "Firebase", level: 72, icon: "FB", category: "Cloud" },
+  // Languages - Programming languages you use
+  { name: "TypeScript", icon: "TS", category: "Languages" },
+  { name: "JavaScript", icon: "JS", category: "Languages" },
+  { name: "Python", icon: "PY", category: "Languages" },
+  { name: "Rust", icon: "RS", category: "Languages" },
+  
+  // Frameworks - Libraries and frameworks
+  { name: "React", icon: "Re", category: "Frameworks" },
+  { name: "Next.js", icon: "Nx", category: "Frameworks" },
+  { name: "Node.js", icon: "No", category: "Frameworks" },
+  { name: "Tailwind CSS", icon: "TW", category: "Frameworks" },
+  
+  // Tools - Development tools and databases
+  { name: "PostgreSQL", icon: "PG", category: "Tools" },
+  { name: "Redis", icon: "RD", category: "Tools" },
+  { name: "Docker", icon: "DK", category: "Tools" },
+  { name: "Git", icon: "GT", category: "Tools" },
+  
+  // Cloud - Cloud platforms and services
+  { name: "AWS", icon: "AW", category: "Cloud" },
+  { name: "Vercel", icon: "VC", category: "Cloud" },
+  { name: "Firebase", icon: "FB", category: "Cloud" },
 ]

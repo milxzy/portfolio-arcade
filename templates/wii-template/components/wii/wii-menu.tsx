@@ -8,22 +8,39 @@ import { WiiBottomBar } from "./wii-bottom-bar"
 import { WiiHomeMenu } from "./wii-home-menu"
 import { ChannelGrid } from "./channel-grid"
 import { ChannelDetail } from "./channel-detail"
+import { useWiiSound } from "@/hooks/use-wii-sound"
 
 type View = "startup" | "menu" | "channel"
+
+const SOUND_STORAGE_KEY = "wii-sound-enabled"
 
 export function WiiMenu() {
   const [view, setView] = useState<View>("startup")
   const [activeChannel, setActiveChannel] = useState<string | null>(null)
   const [showHomeMenu, setShowHomeMenu] = useState(false)
-  const [soundEnabled, setSoundEnabled] = useState(false)
+  const [soundEnabled, setSoundEnabled] = useState(() => {
+    if (typeof window !== "undefined") {
+      return localStorage.getItem(SOUND_STORAGE_KEY) === "true"
+    }
+    return false
+  })
   const [transitioning, setTransitioning] = useState(false)
   const [showFlash, setShowFlash] = useState(false)
 
+  // Persist sound setting to localStorage
+  useEffect(() => {
+    localStorage.setItem(SOUND_STORAGE_KEY, String(soundEnabled))
+  }, [soundEnabled])
+
+  const { playClick, playTransition, playBack, playStartup } = useWiiSound(soundEnabled)
+
   const handleStartupComplete = useCallback(() => {
     setView("menu")
-  }, [])
+    playStartup()
+  }, [playStartup])
 
   const openChannel = useCallback((id: string) => {
+    playTransition()
     // Flash transition
     setShowFlash(true)
     setTransitioning(true)
@@ -35,9 +52,10 @@ export function WiiMenu() {
         setTransitioning(false)
       }, 300)
     }, 250)
-  }, [])
+  }, [playTransition])
 
   const backToMenu = useCallback(() => {
+    playBack()
     setShowFlash(true)
     setTransitioning(true)
     setShowHomeMenu(false)
@@ -49,7 +67,7 @@ export function WiiMenu() {
         setTransitioning(false)
       }, 300)
     }, 250)
-  }, [])
+  }, [playBack])
 
   // Keyboard navigation
   useEffect(() => {
@@ -87,10 +105,14 @@ export function WiiMenu() {
 
       {/* Main menu */}
       {view === "menu" && (
-        <div className="relative z-10 flex flex-col items-center justify-center h-full pb-[80px]">
+        <div className="relative z-10 flex flex-col items-center justify-center h-full pb-[72px] sm:pb-[80px] pt-4 sm:pt-0">
           {/* Channel grid */}
-          <div className="wii-slide-up">
-            <ChannelGrid onOpenChannel={openChannel} />
+          <div className="wii-slide-up w-full">
+            <ChannelGrid 
+              onOpenChannel={openChannel} 
+              onHover={playClick}
+              onClick={playClick}
+            />
           </div>
 
           {/* Bottom bar */}
@@ -121,6 +143,7 @@ export function WiiMenu() {
         <WiiHomeMenu
           onClose={() => setShowHomeMenu(false)}
           onBackToMenu={backToMenu}
+          onClickSound={playClick}
         />
       )}
     </div>

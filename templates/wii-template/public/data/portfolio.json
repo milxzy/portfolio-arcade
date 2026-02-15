@@ -1,26 +1,43 @@
 {
+  "_README": "See portfolio.schema.json for field descriptions and validation rules",
+
   "user": {
-    "name": "Test Developer",
-    "title": "Full Stack Engineer",
-    "bio": "Building amazing web experiences",
-    "avatar": "/placeholder.svg",
+    "name": "Your Name",
+    "title": "Your Job Title",
+    "bio": "A short bio about yourself (1-2 sentences)",
+    "avatar": "/images/avatar.jpg",
     "social": {
-      "github": "https://github.com/testuser",
-      "email": "test@example.com"
+      "github": "https://github.com/yourusername",
+      "linkedin": "https://linkedin.com/in/yourusername",
+      "email": "your@email.com",
+      "twitter": "https://twitter.com/yourusername",
+      "website": "https://yourwebsite.com"
     }
   },
+
   "projects": [
     {
-      "id": "test-project-1",
-      "title": "Test Project",
-      "tagline": "Testing dynamic data loading",
-      "description": "This is a test project to verify that portfolio data loads correctly from JSON",
-      "techStack": ["React", "TypeScript", "Next.js"],
-      "githubUrl": "https://github.com/testuser/test-project",
-      "liveUrl": "https://test-project.dev",
-      "featured": true,
-      "category": ["web-apps"]
+      "id": "project-1",
+      "title": "My Awesome Project",
+      "tagline": "A short catchy tagline",
+      "description": "A longer description of what this project does and why it's interesting.",
+      "techStack": ["React", "TypeScript", "Node.js"],
+      "liveUrl": "https://myproject.com",
+      "githubUrl": "https://github.com/user/project",
+      "category": ["web-apps", "open-source"],
+      "featured": true
+    },
+    {
+      "id": "project-2",
+      "title": "Another Project",
+      "tagline": "Something creative",
+      "description": "Description of this project.",
+      "techStack": ["Python", "FastAPI"],
+      "githubUrl": "https://github.com/user/project2",
+      "category": ["open-source"],
+      "featured": false
     }
   ],
+
   "theme": "wii"
 }

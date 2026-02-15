@@ -1,0 +1,136 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Portfolio Data",
+  "description": "Configuration file for your Wii-themed portfolio. Edit portfolio.json to customize your portfolio content.",
+  "type": "object",
+  "required": ["user", "projects", "theme"],
+  "properties": {
+    "_README": {
+      "type": "string",
+      "description": "Optional field for documentation reference (ignored by the app)"
+    },
+    "user": {
+      "type": "object",
+      "description": "Your personal information displayed in the About Me section",
+      "required": ["name", "title", "bio", "avatar", "social"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Your full name",
+          "examples": ["John Doe", "Jane Smith"]
+        },
+        "title": {
+          "type": "string",
+          "description": "Your job title or role",
+          "examples": ["Full Stack Developer", "Software Engineer", "UI/UX Designer"]
+        },
+        "bio": {
+          "type": "string",
+          "description": "A short bio about yourself (1-2 sentences)",
+          "examples": ["Passionate developer building amazing web experiences"]
+        },
+        "avatar": {
+          "type": "string",
+          "description": "Path to your avatar image. Place image in /public/images/ folder",
+          "examples": ["/images/avatar.jpg", "/images/profile.png"]
+        },
+        "social": {
+          "type": "object",
+          "description": "Your social media and contact links (all fields optional)",
+          "properties": {
+            "github": {
+              "type": "string",
+              "description": "Full URL to your GitHub profile",
+              "examples": ["https://github.com/yourusername"]
+            },
+            "linkedin": {
+              "type": "string",
+              "description": "Full URL to your LinkedIn profile",
+              "examples": ["https://linkedin.com/in/yourusername"]
+            },
+            "email": {
+              "type": "string",
+              "description": "Your email address (without mailto:)",
+              "examples": ["hello@example.com"]
+            },
+            "twitter": {
+              "type": "string",
+              "description": "Full URL to your Twitter/X profile",
+              "examples": ["https://twitter.com/yourusername"]
+            },
+            "website": {
+              "type": "string",
+              "description": "Full URL to your personal website",
+              "examples": ["https://yourwebsite.com"]
+            }
+          }
+        }
+      }
+    },
+    "projects": {
+      "type": "array",
+      "description": "List of your projects. These appear in the channel views based on their category.",
+      "items": {
+        "type": "object",
+        "required": ["id", "title", "tagline", "description", "techStack", "category"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique identifier for the project (use lowercase with hyphens)",
+            "examples": ["my-project", "cool-app-2024"]
+          },
+          "title": {
+            "type": "string",
+            "description": "Project name displayed as the heading",
+            "examples": ["My Awesome Project"]
+          },
+          "tagline": {
+            "type": "string",
+            "description": "Short catchy tagline (1 line)",
+            "examples": ["A revolutionary todo app"]
+          },
+          "description": {
+            "type": "string",
+            "description": "Longer description of the project (2-4 sentences)",
+            "examples": ["This project helps developers manage their tasks efficiently..."]
+          },
+          "techStack": {
+            "type": "array",
+            "description": "List of technologies used in the project",
+            "items": { "type": "string" },
+            "examples": [["React", "TypeScript", "Node.js", "PostgreSQL"]]
+          },
+          "liveUrl": {
+            "type": "string",
+            "description": "URL to the live/deployed project (optional)",
+            "examples": ["https://myproject.com"]
+          },
+          "githubUrl": {
+            "type": "string",
+            "description": "URL to the GitHub repository (optional)",
+            "examples": ["https://github.com/user/project"]
+          },
+          "category": {
+            "type": "array",
+            "description": "Which channel(s) this project appears in. Valid values: 'web-apps', 'open-source', 'creative-lab', 'archive'",
+            "items": {
+              "type": "string",
+              "enum": ["web-apps", "open-source", "creative-lab", "archive"]
+            },
+            "examples": [["web-apps"], ["web-apps", "open-source"]]
+          },
+          "featured": {
+            "type": "boolean",
+            "description": "If true, project appears in the featured/recruiter view (optional, defaults to false)",
+            "default": false
+          }
+        }
+      }
+    },
+    "theme": {
+      "type": "string",
+      "description": "Theme identifier (keep as 'wii' for this template)",
+      "const": "wii"
+    }
+  }
+}
