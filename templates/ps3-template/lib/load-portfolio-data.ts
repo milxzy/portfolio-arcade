@@ -195,40 +195,44 @@ function buildTechStackItems(projects: XMBItem[]): XMBItem[] {
   const items: XMBItem[] = []
   
   if (categorized.frontend.length > 0) {
+    const hasMore = categorized.frontend.length > 3
     items.push({
       id: "tech-frontend",
       label: "Frontend",
-      subtitle: categorized.frontend.slice(0, 5).join(", "),
+      subtitle: categorized.frontend.slice(0, 3).join(", ") + (hasMore ? " ..." : ""),
       description: `Frontend technologies and frameworks used across projects: ${categorized.frontend.join(", ")}`,
       tags: categorized.frontend,
     })
   }
   
   if (categorized.backend.length > 0) {
+    const hasMore = categorized.backend.length > 3
     items.push({
       id: "tech-backend",
       label: "Backend",
-      subtitle: categorized.backend.slice(0, 5).join(", "),
+      subtitle: categorized.backend.slice(0, 3).join(", ") + (hasMore ? " ..." : ""),
       description: `Backend technologies, databases, and APIs used across projects: ${categorized.backend.join(", ")}`,
       tags: categorized.backend,
     })
   }
   
   if (categorized.devops.length > 0) {
+    const hasMore = categorized.devops.length > 3
     items.push({
       id: "tech-devops",
       label: "DevOps & Tools",
-      subtitle: categorized.devops.slice(0, 5).join(", "),
+      subtitle: categorized.devops.slice(0, 3).join(", ") + (hasMore ? " ..." : ""),
       description: `DevOps, cloud platforms, and development tools used: ${categorized.devops.join(", ")}`,
       tags: categorized.devops,
     })
   }
   
   if (categorized.other.length > 0) {
+    const hasMore = categorized.other.length > 3
     items.push({
       id: "tech-other",
       label: "Other Technologies",
-      subtitle: categorized.other.slice(0, 5).join(", "),
+      subtitle: categorized.other.slice(0, 3).join(", ") + (hasMore ? " ..." : ""),
       description: `Other technologies and tools: ${categorized.other.join(", ")}`,
       tags: categorized.other,
     })
