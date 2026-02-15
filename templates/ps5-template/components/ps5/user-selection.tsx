@@ -174,10 +174,10 @@ export function UserSelection({ onSelectProfile }: Props) {
           <span>Press Enter or click to select</span>
         </div>
 
-        {/* power btn - centered on mobile, right side on desktop */}
+        {/* power btn - centered on mobile, left side on desktop */}
         <button
           type="button"
-          className="absolute bottom-6 left-1/2 -translate-x-1/2 md:translate-x-0 md:left-auto md:right-8 md:bottom-8 p-3 rounded-full border border-white/20 text-white/40 hover:text-white/60 hover:border-white/40 transition-all duration-300"
+          className="absolute bottom-6 left-1/2 -translate-x-1/2 md:translate-x-0 md:left-8 md:bottom-8 p-3 rounded-full border border-white/20 text-white/40 hover:text-white/60 hover:border-white/40 transition-all duration-300"
           aria-label="Power"
         >
           <Power className="w-6 h-6" />
