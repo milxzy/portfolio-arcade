@@ -137,7 +137,17 @@ export function XMBInterface({
           if (!isInInput) {
             e.preventDefault()
             setTransitioning(true)
-            setCatIndex((prev) => Math.max(0, prev - 1))
+            setCatIndex((prev) => {
+              const newIndex = Math.max(0, prev - 1)
+              if (newIndex !== prev) {
+                setItemIndices((indices) => {
+                  const copy = [...indices]
+                  copy[newIndex] = 0
+                  return copy
+                })
+              }
+              return newIndex
+            })
           }
           setTimeout(() => setTransitioning(false), 150)
           break
@@ -145,7 +155,17 @@ export function XMBInterface({
           if (!isInInput) {
             e.preventDefault()
             setTransitioning(true)
-            setCatIndex((prev) => Math.min(effectiveCategories.length - 1, prev + 1))
+            setCatIndex((prev) => {
+              const newIndex = Math.min(effectiveCategories.length - 1, prev + 1)
+              if (newIndex !== prev) {
+                setItemIndices((indices) => {
+                  const copy = [...indices]
+                  copy[newIndex] = 0
+                  return copy
+                })
+              }
+              return newIndex
+            })
             setTimeout(() => setTransitioning(false), 150)
           }
           break
@@ -251,9 +271,29 @@ export function XMBInterface({
       if (absDx > absDy && absDx > threshold) {
         // Horizontal swipe
         if (dx > 0) {
-          setCatIndex((prev) => Math.max(0, prev - 1))
+          setCatIndex((prev) => {
+            const newIndex = Math.max(0, prev - 1)
+            if (newIndex !== prev) {
+              setItemIndices((indices) => {
+                const copy = [...indices]
+                copy[newIndex] = 0
+                return copy
+              })
+            }
+            return newIndex
+          })
         } else {
-          setCatIndex((prev) => Math.min(effectiveCategories.length - 1, prev + 1))
+          setCatIndex((prev) => {
+            const newIndex = Math.min(effectiveCategories.length - 1, prev + 1)
+            if (newIndex !== prev) {
+              setItemIndices((indices) => {
+                const copy = [...indices]
+                copy[newIndex] = 0
+                return copy
+              })
+            }
+            return newIndex
+          })
         }
       } else if (absDy > absDx && absDy > threshold) {
         // Vertical swipe
@@ -345,6 +385,13 @@ export function XMBInterface({
                 }}
                 onClick={() => {
                   setTransitioning(true)
+                  if (i !== catIndex) {
+                    setItemIndices((indices) => {
+                      const copy = [...indices]
+                      copy[i] = 0
+                      return copy
+                    })
+                  }
                   setCatIndex(i)
                   setTimeout(() => setTransitioning(false), 150)
                 }}
@@ -379,42 +426,50 @@ export function XMBInterface({
           })}
         </nav>
 
-        {/* Vertical items list for current category */}
+        {/* Vertical items list - single list with items positioned above and below category bar */}
         <div
-          className={`absolute flex flex-col items-start transition-all duration-300 ${
-            transitioning ? "opacity-60" : "opacity-100"
-          }`}
+          className="absolute"
           style={{
             left: "50%",
             top: "50%",
-            marginTop: "40px",
-            transform: `translateX(-50px) translateY(${-currentItemIndex * 52}px)`,
-            transition: "transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.15s ease",
+            transform: "translateX(-50px)",
+            zIndex: 15,
           }}
           role="menu"
           aria-label={`${currentCat?.label} items`}
         >
           {currentCat?.items.map((item, i) => {
             const isActive = i === currentItemIndex
-            const distance = Math.abs(i - currentItemIndex)
             const relativePosition = i - currentItemIndex
-            // Hide items that would render too far below (past ~2 items below active)
-            const shouldHide = relativePosition > 2
+            const distance = Math.abs(relativePosition)
             
-            if (shouldHide) return null
+            // Calculate Y position: items above go negative (above category bar), items below go positive
+            // Selected item (relativePosition === 0) is at 40px below center
+            // Items above: -90px, -142px, -194px, etc. (52px spacing going up)
+            // Items below: need extra offset to account for selected item's expanded height (subtitle + tags)
+            let yOffset: number
+            if (relativePosition < 0) {
+              // Items above the selected one
+              yOffset = -90 + (relativePosition + 1) * 52
+            } else if (relativePosition === 0) {
+              // Selected item
+              yOffset = 40
+            } else {
+              // Items below - add extra 40px to account for selected item's expanded content
+              yOffset = 40 + 40 + relativePosition * 52
+            }
             
             return (
               <button
                 key={item.id}
-                className="flex items-center gap-3 py-2 px-3 rounded-sm outline-none focus-visible:ring-1 transition-all duration-200 text-left w-full min-w-[280px] md:min-w-[350px]"
+                className="absolute flex items-center gap-3 py-2 px-3 rounded-sm outline-none focus-visible:ring-1 text-left min-w-[280px] md:min-w-[350px]"
                 style={{
-                  opacity: isActive ? 1 : Math.max(0.2, 0.6 - distance * 0.15),
-                  transform: isActive ? "scale(1)" : `scale(${Math.max(0.88, 0.95 - distance * 0.02)})`,
+                  opacity: isActive ? 1 : Math.max(0.1, 0.5 - distance * 0.1),
+                  transform: `translateY(${yOffset}px) scale(${isActive ? 1 : Math.max(0.85, 0.95 - distance * 0.02)})`,
+                  transition: "transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.25s ease, background 0.25s ease",
                   background: isActive
                     ? "linear-gradient(90deg, rgba(60,120,220,0.15) 0%, rgba(60,120,220,0) 100%)"
                     : "transparent",
-                  position: "relative",
-                  zIndex: isActive ? 20 : 5,
                 }}
                 onClick={() => {
                   setItemIndices((prev) => {
@@ -430,7 +485,7 @@ export function XMBInterface({
               >
                 {/* Thin selection indicator */}
                 <div
-                  className="w-0.5 h-8 rounded-full transition-all duration-200 shrink-0"
+                  className="w-0.5 h-8 rounded-full shrink-0"
                   style={{
                     backgroundColor: isActive
                       ? "rgba(100,160,255,0.8)"
@@ -438,23 +493,28 @@ export function XMBInterface({
                     boxShadow: isActive
                       ? "0 0 8px rgba(100,160,255,0.4)"
                       : "none",
+                    transition: "background-color 0.25s ease, box-shadow 0.25s ease",
                   }}
                 />
                 <div className="flex flex-col gap-0.5">
                   <span
-                    className="text-sm font-medium tracking-wide transition-colors duration-200"
-                    style={{ color: isActive ? "#f0f0f0" : "#888" }}
+                    className="text-sm font-medium tracking-wide"
+                    style={{ 
+                      color: isActive ? "#f0f0f0" : "#888",
+                      transition: "color 0.25s ease",
+                    }}
                   >
                     {item.label}
                   </span>
                   {(item.subtitle || currentCat.id === "settings") && (
                     <span
-                      className="text-xs transition-all duration-200"
+                      className="text-xs"
                       style={{
                         color: isActive ? "rgba(200,200,200,0.6)" : "rgba(150,150,150,0.4)",
                         maxHeight: isActive ? "20px" : "0px",
                         overflow: "hidden",
                         opacity: isActive ? 1 : 0,
+                        transition: "all 0.25s ease",
                       }}
                     >
                       {getItemSubtitle(item, currentCat.id)}
@@ -463,7 +523,7 @@ export function XMBInterface({
                 </div>
                 {/* Tags for active project items */}
                 {isActive && item.tags && (
-                  <div className="flex gap-1.5 ml-auto flex-wrap justify-end max-w-[200px]">
+                  <div className="flex gap-1.5 ml-auto flex-wrap justify-end max-w-[200px] items-center">
                     {item.tags.slice(0, 3).map((tag) => (
                       <span
                         key={tag}
@@ -477,6 +537,18 @@ export function XMBInterface({
                         {tag}
                       </span>
                     ))}
+                    {item.tags.length > 3 && (
+                      <span
+                        className="text-[10px] px-1.5 py-0.5 rounded-sm tracking-wide"
+                        style={{
+                          backgroundColor: "rgba(100,100,100,0.15)",
+                          color: "rgba(180,180,180,0.7)",
+                          border: "1px solid rgba(100,100,100,0.2)",
+                        }}
+                      >
+                        +{item.tags.length - 3} more
+                      </span>
+                    )}
                   </div>
                 )}
               </button>
