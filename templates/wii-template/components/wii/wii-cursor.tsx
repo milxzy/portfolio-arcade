@@ -1,25 +1,45 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useRef } from "react"
 
 export function WiiCursor() {
   const [pos, setPos] = useState({ x: -100, y: -100 })
   const [clicking, setClicking] = useState(false)
   const [visible, setVisible] = useState(false)
+  const [isTouchDevice, setIsTouchDevice] = useState(false)
+  const hasMouseMoved = useRef(false)
 
   useEffect(() => {
+    // Always add the class to hide cursor immediately
+    document.documentElement.classList.add('wii-cursor-active')
+
     const onMove = (e: MouseEvent) => {
+      // If we get a mouse move, it's not a touch-only device
+      if (!hasMouseMoved.current) {
+        hasMouseMoved.current = true
+        setIsTouchDevice(false)
+      }
       setPos({ x: e.clientX, y: e.clientY })
       if (!visible) setVisible(true)
     }
+    
+    const onTouchStart = () => {
+      // If touch is used, hide the custom cursor
+      setIsTouchDevice(true)
+      setVisible(false)
+    }
+    
     const onDown = () => setClicking(true)
     const onUp = () => setClicking(false)
     const onLeave = () => setVisible(false)
-    const onEnter = () => setVisible(true)
+    const onEnter = () => {
+      if (hasMouseMoved.current) setVisible(true)
+    }
 
     window.addEventListener("mousemove", onMove)
     window.addEventListener("mousedown", onDown)
     window.addEventListener("mouseup", onUp)
+    window.addEventListener("touchstart", onTouchStart)
     document.addEventListener("mouseleave", onLeave)
     document.addEventListener("mouseenter", onEnter)
 
@@ -27,12 +47,15 @@ export function WiiCursor() {
       window.removeEventListener("mousemove", onMove)
       window.removeEventListener("mousedown", onDown)
       window.removeEventListener("mouseup", onUp)
+      window.removeEventListener("touchstart", onTouchStart)
       document.removeEventListener("mouseleave", onLeave)
       document.removeEventListener("mouseenter", onEnter)
+      document.documentElement.classList.remove('wii-cursor-active')
     }
   }, [visible])
 
-  if (!visible) return null
+  // Don't show cursor on touch devices or when not visible
+  if (!visible || isTouchDevice) return null
 
   return (
     <div

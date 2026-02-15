@@ -133,33 +133,33 @@ export function ChannelDetail({
       {/* Content */}
       <div className="relative z-10 flex flex-col h-full">
         {/* Header */}
-        <div className="flex items-center justify-between px-5 md:px-8 py-4 border-b border-white/15">
-          <div className="flex items-center gap-3">
+        <div className="flex items-center justify-between px-3 sm:px-5 md:px-8 py-3 sm:py-4 border-b border-white/15">
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
             {channel && (
               <div
-                className="w-10 h-10 rounded-xl flex items-center justify-center shadow-sm"
+                className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl flex items-center justify-center shadow-sm shrink-0"
                 style={{ background: channel.color, color: channel.textColor }}
               >
-                <ChannelIcon icon={channel.icon} size={18} />
+                <ChannelIcon icon={channel.icon} size={16} className="sm:w-[18px] sm:h-[18px]" />
               </div>
             )}
-            <div>
-              <h1 className="text-lg font-bold text-white">{title}</h1>
-              <p className="text-xs text-white/60">{description}</p>
+            <div className="min-w-0">
+              <h1 className="text-base sm:text-lg font-bold text-white truncate">{title}</h1>
+              <p className="text-[10px] sm:text-xs text-white/60 truncate">{description}</p>
             </div>
           </div>
           <button
             type="button"
             onClick={onBack}
-            className="flex items-center gap-1.5 rounded-full bg-white/15 backdrop-blur-sm px-4 py-2 text-sm font-bold text-white hover:bg-white/25 active:scale-[0.97] transition-all"
+            className="flex items-center gap-1 sm:gap-1.5 rounded-full bg-white/15 backdrop-blur-sm px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-bold text-white hover:bg-white/25 active:scale-[0.97] transition-all shrink-0"
           >
-            <Home size={15} />
-            Back
+            <Home size={14} className="sm:w-[15px] sm:h-[15px]" />
+            <span className="hidden sm:inline">Back</span>
           </button>
         </div>
 
         {/* Scrollable content area */}
-        <div className="flex-1 overflow-y-auto px-5 md:px-8 py-6">
+        <div className="flex-1 overflow-y-auto px-3 sm:px-5 md:px-8 py-4 sm:py-6">
           <div className="max-w-5xl mx-auto">{content}</div>
         </div>
       </div>
