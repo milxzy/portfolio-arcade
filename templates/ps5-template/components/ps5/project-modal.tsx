@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import {
     X,
     ExternalLink,
@@ -10,6 +10,9 @@ import {
     ChevronLeft,
     ChevronRight,
 } from "lucide-react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import remarkBreaks from "remark-breaks";
 import type { Project } from "@/lib/projects";
 
 interface Props {
@@ -17,8 +20,21 @@ interface Props {
     onClose: () => void;
 }
 
+// Normalize markdown content - handles Windows line endings
+function normalizeMarkdown(content: string | undefined): string {
+    if (!content) return "";
+    // Normalize Windows line endings to Unix style
+    return content.replace(/\r\n/g, "\n").replace(/\r/g, "\n");
+}
+
 // the modal that shows full project details
 export function ProjectModal({ project, onClose }: Props) {
+    // Normalize the markdown content
+    const normalizedDescription = useMemo(
+        () => normalizeMarkdown(project.fullDescription),
+        [project.fullDescription]
+    );
+    
     // esc to close
     useEffect(() => {
         const onKey = (e: KeyboardEvent) => {
@@ -135,9 +151,116 @@ export function ProjectModal({ project, onClose }: Props) {
                                 <h2 className="text-xl font-semibold text-white mb-4">
                                     About This Project
                                 </h2>
-                                <p className="text-white/70 leading-relaxed text-lg">
-                                    {project.fullDescription}
-                                </p>
+                                <div className="text-white/70 leading-relaxed text-lg prose prose-invert prose-lg max-w-none">
+                                    <ReactMarkdown
+                                        remarkPlugins={[remarkGfm, remarkBreaks]}
+                                        components={{
+                                            h1: ({ node, ...props }) => (
+                                                <h1 className="text-2xl font-bold mb-4 mt-6 pb-2 border-b border-white/20 text-white" {...props} />
+                                            ),
+                                            h2: ({ node, ...props }) => (
+                                                <h2 className="text-xl font-semibold mb-3 mt-5 pb-2 border-b border-white/10 text-white/90" {...props} />
+                                            ),
+                                            h3: ({ node, ...props }) => (
+                                                <h3 className="text-lg font-medium mb-2 mt-4 text-white/85" {...props} />
+                                            ),
+                                            h4: ({ node, ...props }) => (
+                                                <h4 className="text-base font-medium mb-2 mt-3 text-white/80" {...props} />
+                                            ),
+                                            p: ({ node, ...props }) => (
+                                                <p className="mb-4 text-white/70 leading-7" {...props} />
+                                            ),
+                                            ul: ({ node, ...props }) => (
+                                                <ul className="list-disc pl-6 mb-4 space-y-1 text-white/70" {...props} />
+                                            ),
+                                            ol: ({ node, ...props }) => (
+                                                <ol className="list-decimal pl-6 mb-4 space-y-1 text-white/70" {...props} />
+                                            ),
+                                            li: ({ node, children, ...props }) => (
+                                                <li className="text-white/70 pl-1" {...props}>{children}</li>
+                                            ),
+                                            code: ({ node, className, children, ...props }) => {
+                                                const isInline = !className?.includes("language-");
+                                                return isInline ? (
+                                                    <code
+                                                        className="px-1.5 py-0.5 rounded text-sm font-mono bg-white/10 text-primary"
+                                                        {...props}
+                                                    >
+                                                        {children}
+                                                    </code>
+                                                ) : (
+                                                    <code
+                                                        className="block px-4 py-3 rounded-lg text-sm font-mono bg-black/30 text-white/80 overflow-x-auto"
+                                                        {...props}
+                                                    >
+                                                        {children}
+                                                    </code>
+                                                );
+                                            },
+                                            pre: ({ node, ...props }) => (
+                                                <pre
+                                                    className="mb-4 p-4 rounded-lg overflow-x-auto bg-black/40 border border-white/10"
+                                                    {...props}
+                                                />
+                                            ),
+                                            a: ({ node, ...props }) => (
+                                                <a
+                                                    className="text-primary hover:text-primary/80 underline"
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    {...props}
+                                                />
+                                            ),
+                                            blockquote: ({ node, ...props }) => (
+                                                <blockquote
+                                                    className="border-l-4 border-primary/50 pl-4 my-4 text-white/60"
+                                                    {...props}
+                                                />
+                                            ),
+                                            strong: ({ node, ...props }) => (
+                                                <strong className="font-semibold text-white/90" {...props} />
+                                            ),
+                                            em: ({ node, ...props }) => (
+                                                <em className="italic text-white/75" {...props} />
+                                            ),
+                                            hr: ({ node, ...props }) => (
+                                                <hr className="my-6 border-white/20" {...props} />
+                                            ),
+                                            table: ({ node, ...props }) => (
+                                                <div className="overflow-x-auto mb-4">
+                                                    <table className="min-w-full border-collapse border border-white/20 rounded-lg" {...props} />
+                                                </div>
+                                            ),
+                                            thead: ({ node, ...props }) => (
+                                                <thead className="bg-white/5" {...props} />
+                                            ),
+                                            th: ({ node, ...props }) => (
+                                                <th className="border border-white/20 px-4 py-2 text-left font-semibold text-white/90" {...props} />
+                                            ),
+                                            td: ({ node, ...props }) => (
+                                                <td className="border border-white/20 px-4 py-2 text-white/70" {...props} />
+                                            ),
+                                            del: ({ node, ...props }) => (
+                                                <del className="text-white/50 line-through" {...props} />
+                                            ),
+                                            input: ({ node, ...props }) => (
+                                                <input
+                                                    className="mr-2 accent-primary"
+                                                    disabled
+                                                    {...props}
+                                                />
+                                            ),
+                                            img: ({ node, ...props }) => (
+                                                <img
+                                                    className="max-w-full h-auto rounded-lg my-4"
+                                                    {...props}
+                                                />
+                                            ),
+                                        }}
+                                    >
+                                        {normalizedDescription}
+                                    </ReactMarkdown>
+                                </div>
                             </div>
 
                             {/* action btns */}
