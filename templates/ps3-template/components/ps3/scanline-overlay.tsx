@@ -5,18 +5,40 @@ export function ScanlineOverlay({ enabled }: { enabled: boolean }) {
 
   return (
     <div
-      className="fixed inset-0 z-40 pointer-events-none"
+      className="fixed inset-0 pointer-events-none"
       aria-hidden="true"
       style={{
-        backgroundImage: `repeating-linear-gradient(
-          0deg,
-          rgba(0, 0, 0, 0.03) 0px,
-          rgba(0, 0, 0, 0.03) 1px,
-          transparent 1px,
-          transparent 3px
-        )`,
-        backgroundSize: "100% 3px",
+        zIndex: 9999,
       }}
-    />
+    >
+      {/* Scanlines */}
+      <div
+        className="absolute inset-0"
+        style={{
+          backgroundImage: `repeating-linear-gradient(
+            0deg,
+            transparent 0px,
+            transparent 1px,
+            rgba(0, 0, 0, 0.3) 1px,
+            rgba(0, 0, 0, 0.3) 2px
+          )`,
+          backgroundSize: "100% 2px",
+        }}
+      />
+      {/* Slight color tint and flicker simulation */}
+      <div
+        className="absolute inset-0"
+        style={{
+          background: "rgba(0, 20, 40, 0.05)",
+        }}
+      />
+      {/* Vignette effect - darker edges */}
+      <div
+        className="absolute inset-0"
+        style={{
+          background: `radial-gradient(ellipse at center, transparent 0%, transparent 50%, rgba(0, 0, 0, 0.4) 100%)`,
+        }}
+      />
+    </div>
   )
 }

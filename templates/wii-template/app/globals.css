@@ -58,9 +58,21 @@
   }
 }
 
-/* Wii custom cursor */
-.wii-cursor-area {
-  cursor: none;
+/* Wii custom cursor - hide system cursor globally */
+html.wii-cursor-active,
+html.wii-cursor-active body,
+html.wii-cursor-active *,
+html.wii-cursor-active *::before,
+html.wii-cursor-active *::after,
+html.wii-cursor-active a,
+html.wii-cursor-active button,
+html.wii-cursor-active input,
+html.wii-cursor-active textarea,
+html.wii-cursor-active select,
+html.wii-cursor-active [role="button"],
+html.wii-cursor-active [onclick],
+html.wii-cursor-active [tabindex] {
+  cursor: none !important;
 }
 
 /* Wii channel tile */

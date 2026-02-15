@@ -6,17 +6,27 @@ import { ChannelIcon } from "./channel-icon"
 export function ChannelTile({
   channel,
   onClick,
+  onHover,
+  onClickSound,
   index,
 }: {
   channel: Channel
   onClick: (id: string) => void
+  onHover?: () => void
+  onClickSound?: () => void
   index: number
 }) {
+  const handleClick = () => {
+    onClickSound?.()
+    onClick(channel.id)
+  }
+
   return (
     <button
       type="button"
-      onClick={() => onClick(channel.id)}
-      className="wii-channel relative flex flex-col items-center justify-center rounded-lg p-3 md:p-4 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#5AADE0]/60 focus-visible:ring-offset-2 w-full"
+      onClick={handleClick}
+      onMouseEnter={onHover}
+      className="wii-channel relative flex flex-col items-center justify-center rounded-lg p-2 sm:p-3 md:p-4 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#5AADE0]/60 focus-visible:ring-offset-2 w-full"
       style={{
         background: channel.color,
         color: channel.textColor,
@@ -36,14 +46,14 @@ export function ChannelTile({
         }}
       />
 
-      <div className="relative flex flex-col items-center gap-1">
-        <ChannelIcon icon={channel.icon} size={24} />
+      <div className="relative flex flex-col items-center gap-0.5 sm:gap-1">
+        <ChannelIcon icon={channel.icon} size={20} className="sm:w-6 sm:h-6" />
         <div className="text-center">
-          <div className="text-xs md:text-sm font-bold leading-tight">
+          <div className="text-[11px] sm:text-xs md:text-sm font-bold leading-tight">
             {channel.title}
           </div>
           {channel.subtitle && (
-            <div className="text-[10px] md:text-xs font-semibold opacity-75 leading-tight">
+            <div className="text-[9px] sm:text-[10px] md:text-xs font-semibold opacity-75 leading-tight">
               {channel.subtitle}
             </div>
           )}

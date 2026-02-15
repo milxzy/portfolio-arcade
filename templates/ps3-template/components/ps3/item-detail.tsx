@@ -121,8 +121,9 @@ export function ItemDetail({ item, categoryId, onBack }: ItemDetailProps) {
                   li: ({ node, ...props }) => (
                     <li style={{ color: "rgba(200,200,200,0.8)" }} {...props} />
                   ),
-                  code: ({ node, inline, ...props }) =>
-                    inline ? (
+                  code: ({ node, className, children, ...props }) => {
+                    const isInline = !className?.includes("language-")
+                    return isInline ? (
                       <code
                         className="px-1.5 py-0.5 rounded text-xs font-mono"
                         style={{
@@ -130,7 +131,9 @@ export function ItemDetail({ item, categoryId, onBack }: ItemDetailProps) {
                           color: "rgba(160,190,240,0.95)",
                         }}
                         {...props}
-                      />
+                      >
+                        {children}
+                      </code>
                     ) : (
                       <code
                         className="block px-3 py-2 rounded text-xs font-mono overflow-x-auto"
@@ -139,8 +142,11 @@ export function ItemDetail({ item, categoryId, onBack }: ItemDetailProps) {
                           color: "rgba(180,200,240,0.9)",
                         }}
                         {...props}
-                      />
-                    ),
+                      >
+                        {children}
+                      </code>
+                    )
+                  },
                   pre: ({ node, ...props }) => (
                     <pre
                       className="mb-3 p-3 rounded overflow-x-auto"
