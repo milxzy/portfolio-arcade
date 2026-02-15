@@ -1,19 +1,31 @@
 "use client"
 
-import { useCallback, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import type { UserProfile } from "@/lib/xmb-data"
 import { BootScreen } from "./boot-screen"
 import { WaveBackground } from "./wave-background"
 import { XMBInterface } from "./xmb-interface"
 import { ScanlineOverlay } from "./scanline-overlay"
 
+const SOUND_STORAGE_KEY = "ps3-sound-enabled"
+
 export function PS3Portfolio() {
   const [booted, setBooted] = useState(false)
   const [profile, setProfile] = useState<UserProfile>("recruiter")
   const [colorIndex, setColorIndex] = useState(0)
-  const [soundEnabled, setSoundEnabled] = useState(false)
+  const [soundEnabled, setSoundEnabled] = useState(() => {
+    if (typeof window !== "undefined") {
+      return localStorage.getItem(SOUND_STORAGE_KEY) === "true"
+    }
+    return false
+  })
   const [scanlines, setScanlines] = useState(false)
   const [waveIntensity, setWaveIntensity] = useState(1)
+
+  // Persist sound setting to localStorage
+  useEffect(() => {
+    localStorage.setItem(SOUND_STORAGE_KEY, String(soundEnabled))
+  }, [soundEnabled])
 
   const handleBootComplete = useCallback(() => {
     setBooted(true)
