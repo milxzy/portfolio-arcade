@@ -168,7 +168,7 @@ export function UserSelection({ onSelectProfile }: Props) {
         </div>
 
         {/* hint text */}
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex items-center gap-4 text-white/40 text-sm">
+        <div className="absolute bottom-20 md:bottom-8 left-1/2 -translate-x-1/2 flex items-center gap-4 text-white/40 text-sm">
           <span className="hidden md:inline">Use arrow keys to navigate</span>
           <span className="hidden md:inline">•</span>
           <span>Press Enter or click to select</span>
@@ -177,7 +177,7 @@ export function UserSelection({ onSelectProfile }: Props) {
         {/* power btn */}
         <button
           type="button"
-          className="absolute bottom-8 left-1/2 -translate-x-1/2 md:left-auto md:right-8 md:translate-x-0 p-3 rounded-full border border-white/20 text-white/40 hover:text-white/60 hover:border-white/40 transition-all duration-300"
+          className="absolute bottom-8 left-8 md:left-auto md:right-8 p-3 rounded-full border border-white/20 text-white/40 hover:text-white/60 hover:border-white/40 transition-all duration-300"
           aria-label="Power"
         >
           <Power className="w-6 h-6" />

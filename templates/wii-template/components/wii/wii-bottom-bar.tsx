@@ -26,7 +26,7 @@ export function WiiBottomBar() {
   }, [])
 
   return (
-    <div className="absolute bottom-0 left-0 right-0 z-20">
+    <div className="fixed md:absolute bottom-0 left-0 right-0 z-20">
       {/* The actual bottom bar area */}
       <div className="relative flex items-center justify-between px-2 sm:px-3 md:px-6 h-[64px] sm:h-[72px] md:h-[80px]"
         style={{

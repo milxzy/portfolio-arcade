@@ -91,7 +91,7 @@ export function WiiMenu() {
   }, [view, showHomeMenu, backToMenu])
 
   return (
-    <div className="relative h-screen w-screen overflow-hidden wii-cursor-area select-none">
+    <div className="relative min-h-screen w-screen overflow-x-hidden overflow-y-auto md:overflow-hidden md:h-screen wii-cursor-area select-none">
       {/* Custom cursor */}
       <WiiCursor />
 
@@ -105,7 +105,7 @@ export function WiiMenu() {
 
       {/* Main menu */}
       {view === "menu" && (
-        <div className="relative z-10 flex flex-col items-center justify-center h-full pb-[72px] sm:pb-[80px] pt-4 sm:pt-0">
+        <div className="relative z-10 flex flex-col items-center justify-start md:justify-center min-h-full pb-[80px] sm:pb-[88px] pt-4 sm:pt-6 md:pt-0">
           {/* Channel grid */}
           <div className="wii-slide-up w-full">
             <ChannelGrid 
