@@ -6,7 +6,7 @@ hey! this generates portfolio websites that look like gaming console interfaces.
 
 makes portfolio sites themed after consoles you actually used. pick from ps3's crossbar menu, ps5's modern ui, or the wii channel grid.
 
-handles all the boring setup - copying files, installing dependencies, starting dev servers. you just pick a theme and add your projects.
+handles the boring setup - copying template files, fetching your github project data, and wiring everything together. you just pick a theme, paste your repo urls, and run `npm install && npm run dev`.
 
 ## quick install
 
@@ -43,15 +43,13 @@ run `portfolio-arcade init` and it walks you through everything:
 - ps5 ui - modern cards and smooth animations
 - wii channels - colorful tiles, very nintendo
 
-**content management**
-- decap cms if you want web editing that commits to git
-- payload cms if you need more power (requires a server)
-- manual if you like editing files directly
-
 **basic info**
-name, title, dev server port. nothing fancy.
+project name, your name, and your developer title. nothing fancy.
 
-then it does its thing - copies the template, runs npm install, starts the dev server. usually takes 30-60 seconds depending on your internet.
+**github projects**
+paste in your github repo urls. it fetches metadata, languages, and readme content automatically.
+
+then it copies the template and writes your portfolio data. once done, you run `npm install` and `npm run dev` yourself.
 
 ## what you get
 
@@ -69,11 +67,7 @@ each theme feels different:
 
 ## managing content
 
-**with decap**: visit `/admin` after setup, edit through a web interface. changes get committed to your git repo automatically.
-
-**with payload**: more features but you run your own server. good for complex needs.
-
-**manually**: just edit the markdown files in `content/projects/` and `data/portfolio.json`. fastest if you're comfortable with code.
+edit your portfolio data directly in `public/data/portfolio.json` and the markdown files in `content/projects/`. fastest if you're comfortable with code.
 
 ## commands
 
@@ -117,7 +111,9 @@ cargo build --release
 the code is pretty straightforward:
 - `src/cli.rs` - handles command line parsing
 - `src/tui/` - terminal interface with ratatui
-- `src/generator/` - copies templates and updates configs  
+- `src/generator/` - copies templates and updates configs
+- `src/github/` - github api client for fetching repo data
+- `src/models/` - data structures for portfolio config and themes
 - `src/update.rs` - auto-update functionality
 - `templates/` - the actual portfolio templates
 
