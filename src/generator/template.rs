@@ -19,12 +19,12 @@ impl TemplateGenerator {
     pub fn new(project_name: String, config: PortfolioConfig) -> Result<Self> {
         // get the current directory where templates should be located
         let current_dir = env::current_dir()?;
-        
+
         // get the executable directory for relative path resolution
         let exe_dir = env::current_exe()
             .ok()
             .and_then(|p| p.parent().map(|p| p.to_path_buf()));
-        
+
         // try multiple possible template locations with extensive fallbacks
         let mut possible_template_dirs = vec![
             // Current working directory
@@ -32,7 +32,7 @@ impl TemplateGenerator {
             PathBuf::from("templates"),
             PathBuf::from("./templates"),
         ];
-        
+
         // Add executable-relative paths if we can determine exe location
         if let Some(exe_path) = exe_dir {
             possible_template_dirs.extend(vec![
@@ -43,18 +43,21 @@ impl TemplateGenerator {
                 exe_path.join("../../../templates"),
             ]);
         }
-        
+
         // Add common project structure fallbacks
         possible_template_dirs.extend(vec![
             PathBuf::from("portfolio-arcade/templates"),
             PathBuf::from("../portfolio-arcade/templates"),
             current_dir.join("portfolio-arcade/templates"),
-            current_dir.parent().map(|p| p.join("portfolio-arcade/templates")).unwrap_or_else(|| PathBuf::from("")),
+            current_dir
+                .parent()
+                .map(|p| p.join("portfolio-arcade/templates"))
+                .unwrap_or_else(|| PathBuf::from("")),
         ]);
-        
+
         // Clone the paths for error message before moving
         let paths_for_error = possible_template_dirs.clone();
-        
+
         let templates_dir = possible_template_dirs
             .into_iter()
             .find(|dir| dir.exists() && dir.is_dir())
@@ -124,13 +127,13 @@ impl TemplateGenerator {
 
     fn copy_template(&self) -> Result<()> {
         use walkdir::WalkDir;
-        
+
         // Create target directory
         fs::create_dir_all(&self.target_dir)?;
-        
+
         // Directories and files to exclude
-        let exclude_names = vec!["node_modules", ".next", "package-lock.json"];
-        
+        let exclude_names = ["node_modules", ".next", "package-lock.json"];
+
         // Walk through source directory and copy files selectively
         for entry in WalkDir::new(&self.source_dir)
             .into_iter()
@@ -142,16 +145,16 @@ impl TemplateGenerator {
         {
             let entry = entry?;
             let path = entry.path();
-            
+
             // Skip the root source directory itself
             if path == self.source_dir {
                 continue;
             }
-            
+
             // Calculate relative path from source
             let relative_path = path.strip_prefix(&self.source_dir)?;
             let target_path = self.target_dir.join(relative_path);
-            
+
             if entry.file_type().is_dir() {
                 fs::create_dir_all(&target_path)?;
             } else {
@@ -258,7 +261,8 @@ this is a sample project to help you get started. edit this file to add your own
 describe what you learned building this project and what challenges you solved.
 
 replace this content with your own projects by editing files in the `content/projects/` directory.
-"#.to_string();
+"#
+        .to_string();
 
         let sample_file = content_dir.join("sample-project.md");
         fs::write(sample_file, sample_project)?;
@@ -359,7 +363,7 @@ This is a standard next.js app and can be deployed to:
 - [react](https://reactjs.org/)
 - [typescript](https://www.typescriptlang.org/)
 - [tailwind css](https://tailwindcss.com/)
-- [portfolio arcade](https://github.com/username/portfolio-arcade)
+- [portfolio arcade](https://github.com/milxzy/portfolio-arcade)
 
 ---
 
@@ -467,7 +471,8 @@ collections:
                   - {label: "GitHub", name: "github", widget: "string", required: false}
                   - {label: "LinkedIn", name: "linkedin", widget: "string", required: false}
                   - {label: "Email", name: "email", widget: "string", required: false}
-"#.to_string();
+"#
+        .to_string();
 
         fs::write(admin_dir.join("config.yml"), config_yml)?;
 

@@ -25,9 +25,18 @@ async fn main() -> Result<()> {
 
     // show welcome message with some flair
     println!();
-    println!("{}", "╔══════════════════════════════════════════════╗".cyan());
-    println!("{}", "║         portfolio arcade generator           ║".cyan());
-    println!("{}", "╚══════════════════════════════════════════════╝".cyan());
+    println!(
+        "{}",
+        "╔══════════════════════════════════════════════╗".cyan()
+    );
+    println!(
+        "{}",
+        "║         portfolio arcade generator           ║".cyan()
+    );
+    println!(
+        "{}",
+        "╚══════════════════════════════════════════════╝".cyan()
+    );
     println!();
 
     match cli.command {

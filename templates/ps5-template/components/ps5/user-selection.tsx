@@ -6,6 +6,7 @@ import type { UserProfile } from "@/lib/projects"
 
 interface Props {
   onSelectProfile: (profile: UserProfile) => void
+  userName?: string
 }
 
 // little floating dot
@@ -25,7 +26,7 @@ const profiles: { id: UserProfile; name: string; icon: typeof User; color: strin
 ]
 
 // the "who's playing?" screen
-export function UserSelection({ onSelectProfile }: Props) {
+export function UserSelection({ onSelectProfile, userName = "Developer" }: Props) {
   const [idx, setIdx] = useState(0)
   const [animating, setAnimating] = useState(false)
   const [particles, setParticles] = useState<Particle[]>([])
@@ -108,7 +109,7 @@ export function UserSelection({ onSelectProfile }: Props) {
         {/* header */}
         <div className="text-center mb-16">
           <h1 className="text-5xl md:text-6xl font-light text-white mb-4 tracking-tight">
-            Welcome Back to <span className="font-medium">MilxOS</span>
+            Welcome Back, <span className="font-medium">{userName}</span>
           </h1>
           <p className="text-white/60 text-xl font-light">{"Who's playing?"}</p>
         </div>

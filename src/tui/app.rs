@@ -9,10 +9,7 @@ use crossterm::{
     execute,
     terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
 };
-use ratatui::{
-    backend::CrosstermBackend,
-    Terminal,
-};
+use ratatui::{backend::CrosstermBackend, Terminal};
 use std::io;
 
 #[derive(Debug, Clone, PartialEq)]
@@ -47,6 +44,7 @@ pub struct InputFields {
 }
 
 #[derive(Debug, Clone, PartialEq)]
+#[allow(dead_code)]
 pub enum InputField {
     ProjectName,
     AuthorName,
@@ -106,7 +104,10 @@ impl App {
         Ok(())
     }
 
-    async fn run_app(&mut self, terminal: &mut Terminal<CrosstermBackend<std::io::Stdout>>) -> Result<()> {
+    async fn run_app(
+        &mut self,
+        terminal: &mut Terminal<CrosstermBackend<std::io::Stdout>>,
+    ) -> Result<()> {
         loop {
             // draw the ui
             terminal.draw(|f| crate::tui::ui::draw(f, self))?;
@@ -176,8 +177,6 @@ impl App {
         }
     }
 
-
-
     fn handle_project_details(&mut self, key: KeyCode) {
         match key {
             KeyCode::Tab => {
@@ -235,7 +234,9 @@ impl App {
             KeyCode::Enter => {
                 if !self.input_fields.current_github_url.trim().is_empty() {
                     // Add the current URL to the list
-                    self.input_fields.github_projects.push(self.input_fields.current_github_url.clone());
+                    self.input_fields
+                        .github_projects
+                        .push(self.input_fields.current_github_url.clone());
                     self.input_fields.current_github_url.clear();
                 } else if !self.input_fields.github_projects.is_empty() {
                     // If no URL entered but we have projects, proceed
@@ -303,6 +304,7 @@ impl App {
             && !self.input_fields.title.trim().is_empty()
     }
 
+    #[allow(dead_code)]
     fn validate_inputs(&self) -> bool {
         self.validate_basic_inputs() && !self.input_fields.github_projects.is_empty()
     }
@@ -311,7 +313,7 @@ impl App {
         self.config.user.name = self.input_fields.author_name.clone();
         self.config.user.title = self.input_fields.title.clone();
         self.config.cms = crate::models::CmsType::None; // Default to no CMS for GitHub-based workflow
-        // Convert GitHub URLs to project data
+                                                        // Convert GitHub URLs to project data
         self.config.projects = self.github_urls_to_projects().await;
     }
 
@@ -324,9 +326,9 @@ impl App {
                 return self.create_placeholder_projects();
             }
         };
-        
+
         let mut projects = Vec::new();
-        
+
         for (i, url) in self.input_fields.github_projects.iter().enumerate() {
             match self.fetch_github_project(&client, url, i).await {
                 Ok(project) => projects.push(project),
@@ -337,32 +339,48 @@ impl App {
                 }
             }
         }
-        
+
         projects
     }
-    
-    async fn fetch_github_project(&self, client: &crate::github::GitHubClient, url: &str, index: usize) -> Result<crate::models::portfolio::Project> {
+
+    async fn fetch_github_project(
+        &self,
+        client: &crate::github::GitHubClient,
+        url: &str,
+        index: usize,
+    ) -> Result<crate::models::portfolio::Project> {
         // Parse GitHub URL
         let (owner, repo) = crate::github::parse_github_url(url)?;
-        
+
         // Fetch repository data
         let repo_data = client.get_repo(&owner, &repo).await?;
         let languages = client.get_languages(&owner, &repo).await?;
-        
+
         // Process languages into tech stack
         let tech_stack = crate::github::process_languages(&languages);
-        
+
         // Try to fetch README for full description
-        let full_description = client.get_readme(&owner, &repo).await
+        let full_description = client
+            .get_readme(&owner, &repo)
+            .await
             .unwrap_or_else(|_| repo_data.description.clone().unwrap_or_default());
-        
+
         // Extract date from created_at
-        let date = repo_data.created_at.split('T').next().unwrap_or("2024-01-01");
-        
+        let date = repo_data
+            .created_at
+            .split('T')
+            .next()
+            .unwrap_or("2024-01-01");
+
         Ok(crate::models::portfolio::Project {
             id: format!("project-{}", index + 1),
-            title: repo_data.name.replace('-', " ").replace('_', " "),
-            description: repo_data.description.unwrap_or_else(|| format!("A {} project", repo_data.language.unwrap_or_else(|| "software".to_string()))),
+            title: repo_data.name.replace(['-', '_'], " "),
+            description: repo_data.description.unwrap_or_else(|| {
+                format!(
+                    "A {} project",
+                    repo_data.language.unwrap_or_else(|| "software".to_string())
+                )
+            }),
             full_description,
             category: "Development".to_string(),
             tech_stack,
@@ -377,31 +395,45 @@ impl App {
             date: date.to_string(),
             extra: {
                 let mut extra = std::collections::HashMap::new();
-                extra.insert("stars".to_string(), serde_json::json!(repo_data.stargazers_count));
-                extra.insert("forks".to_string(), serde_json::json!(repo_data.forks_count));
+                extra.insert(
+                    "stars".to_string(),
+                    serde_json::json!(repo_data.stargazers_count),
+                );
+                extra.insert(
+                    "forks".to_string(),
+                    serde_json::json!(repo_data.forks_count),
+                );
                 if !repo_data.topics.is_empty() {
-                    extra.insert("topics".to_string(), serde_json::json!(repo_data.topics.join(", ")));
+                    extra.insert(
+                        "topics".to_string(),
+                        serde_json::json!(repo_data.topics.join(", ")),
+                    );
                 }
                 extra
             },
         })
     }
-    
+
     fn create_placeholder_projects(&self) -> Vec<crate::models::portfolio::Project> {
-        self.input_fields.github_projects
+        self.input_fields
+            .github_projects
             .iter()
             .enumerate()
             .map(|(i, url)| self.create_placeholder_project(url, i))
             .collect()
     }
-    
-    fn create_placeholder_project(&self, url: &str, index: usize) -> crate::models::portfolio::Project {
+
+    fn create_placeholder_project(
+        &self,
+        url: &str,
+        index: usize,
+    ) -> crate::models::portfolio::Project {
         let repo_name = url
             .split('/')
-            .last()
+            .next_back()
             .unwrap_or("project")
             .replace(".git", "");
-        
+
         crate::models::portfolio::Project {
             id: format!("project-{}", index + 1),
             title: repo_name.replace('-', " "),
@@ -425,10 +457,8 @@ impl App {
     async fn generate_project(&mut self) -> Result<()> {
         self.progress_message = "copying template files...".to_string();
 
-        let generator = TemplateGenerator::new(
-            self.input_fields.project_name.clone(),
-            self.config.clone(),
-        )?;
+        let generator =
+            TemplateGenerator::new(self.input_fields.project_name.clone(), self.config.clone())?;
 
         generator.generate().await?;
 
@@ -439,6 +469,4 @@ impl App {
     pub fn selected_theme(&self) -> &Theme {
         &self.themes[self.selected_theme_idx]
     }
-
-
 }

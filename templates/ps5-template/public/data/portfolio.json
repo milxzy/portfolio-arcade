@@ -1,28 +1,28 @@
 {
   "user": {
-    "name": "Test Developer",
-    "title": "Full Stack Engineer",
-    "bio": "Building amazing web experiences",
+    "name": "Your Name",
+    "title": "Software Developer",
+    "bio": "A passionate developer creating amazing digital experiences",
     "avatar": "/placeholder.svg",
     "social": {
-      "github": "https://github.com/testuser",
-      "email": "test@example.com"
+      "github": "https://github.com/your-username",
+      "email": "hello@yourdomain.com"
     }
   },
   "projects": [
     {
-      "id": "test-project-1",
-      "title": "Test Project",
-      "subtitle": "A test portfolio project",
-      "description": "This is a test project to verify that portfolio data loads correctly from JSON",
-      "tagline": "Testing dynamic data loading",
+      "id": "your-project",
+      "title": "Your Project",
+      "subtitle": "A short project tagline",
+      "description": "Describe what this project does and what makes it interesting.",
+      "tagline": "Built with modern web technologies",
       "coverImage": "/placeholder.svg",
       "backgroundImage": "/placeholder.svg",
       "techStack": ["React", "TypeScript", "Next.js"],
-      "githubUrl": "https://github.com/testuser/test-project",
-      "liveUrl": "https://test-project.dev",
+      "githubUrl": "https://github.com/your-username/your-project",
+      "liveUrl": "https://your-project.dev",
       "featured": true,
-      "progress": 85,
+      "progress": 100,
       "achievements": 3,
       "totalAchievements": 5,
       "priority": {

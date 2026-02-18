@@ -2,7 +2,7 @@
 /target/
 **/*.rs.bk
 *.pdb
-Cargo.lock
+# Cargo.lock is intentionally tracked for reproducible builds (binary application)
 *.exe
 *.dll
 *.so
@@ -114,6 +114,11 @@ node_modules/
 *_old
 .eslintcache
 .agents/
+
+# release assets (binaries live on github releases, not in git)
+release-assets/*.tar.gz
+release-assets/*.sha256
+release-assets/portfolio-arcade
 
 # testing and development scripts
 test-install.sh

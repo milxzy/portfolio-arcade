@@ -57,6 +57,7 @@ then it does its thing - copies the template, runs npm install, starts the dev s
 
 a next.js site with your theme applied:
 
+> screenshots and demo GIFs coming soon
 
 each theme feels different:
 

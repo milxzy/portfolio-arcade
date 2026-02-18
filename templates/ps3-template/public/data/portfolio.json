@@ -1,64 +1,29 @@
 {
   "user": {
-    "name": "Test Developer",
-    "title": "Full Stack Engineer",
-    "bio": "Building amazing web experiences",
+    "name": "Your Name",
+    "title": "Software Developer",
+    "bio": "A passionate developer creating amazing digital experiences",
     "avatar": "/placeholder.svg",
     "social": {
-      "github": "https://github.com/testuser",
-      "email": "test@example.com"
+      "github": "https://github.com/your-username",
+      "email": "hello@yourdomain.com"
     }
   },
   "projects": [
     {
-      "id": "ecommerce-platform",
-      "label": "E-Commerce Platform",
-      "subtitle": "Full-stack shopping experience",
-      "description": "# E-Commerce Platform\n\nA modern, scalable e-commerce platform built with React and Node.js.\n\n## Tech Stack\n\n- React, TypeScript, Redux\n- Node.js, Express, PostgreSQL\n- Docker, Kubernetes, AWS\n\n## Features\n\n- Product catalog with search\n- Shopping cart and checkout\n- Payment integration with Stripe\n- Admin dashboard\n\n```typescript\ninterface Product {\n  id: string;\n  name: string;\n  price: number;\n  stock: number;\n}\n```",
-      "date": "2024-01-15",
-      "tags": ["React", "Node.js", "PostgreSQL", "Docker", "AWS"],
+      "id": "your-project",
+      "label": "Your Project",
+      "subtitle": "A short project tagline",
+      "description": "# Your Project\n\nDescribe what this project does and what makes it interesting.\n\n## Tech Stack\n\n- List your technologies here\n\n## Features\n\n- Feature one\n- Feature two\n- Feature three",
+      "date": "2026-01-01",
+      "tags": ["React", "TypeScript", "Next.js"],
       "links": [
         {
           "label": "GitHub",
-          "url": "https://github.com/testuser/ecommerce"
+          "url": "https://github.com/your-username/your-project"
         }
       ],
       "profilePriority": ["recruiter", "engineer", "stranger"]
-    },
-    {
-      "id": "ml-pipeline",
-      "label": "ML Data Pipeline",
-      "subtitle": "Real-time analytics system",
-      "description": "# Machine Learning Pipeline\n\nA distributed data processing pipeline for real-time analytics.\n\n## Stack\n\n- Python, TensorFlow, scikit-learn\n- Apache Kafka, Spark\n- Kubernetes, Prometheus\n\n## Capabilities\n\n- Stream processing at scale\n- Model training and deployment\n- Monitoring and alerting",
-      "date": "2024-02-01",
-      "tags": ["Python", "TensorFlow", "Kafka", "Kubernetes", "Prometheus"],
-      "links": [],
-      "profilePriority": ["engineer", "recruiter", "stranger"]
-    },
-    {
-      "id": "mobile-app",
-      "label": "Social Mobile App",
-      "subtitle": "Cross-platform social network",
-      "description": "# Social Mobile App\n\nA cross-platform mobile app built with React Native.\n\n## Technologies\n\n- React Native, TypeScript\n- Firebase, GraphQL\n- Jest, Detox\n\n## Features\n\n- Real-time messaging\n- Photo sharing\n- Push notifications",
-      "date": "2023-12-10",
-      "tags": ["React Native", "TypeScript", "Firebase", "GraphQL"],
-      "links": [
-        {
-          "label": "App Store",
-          "url": "https://apps.apple.com/app/test"
-        }
-      ],
-      "profilePriority": ["stranger", "recruiter", "engineer"]
-    },
-    {
-      "id": "devops-toolkit",
-      "label": "DevOps Automation",
-      "subtitle": "CI/CD and infrastructure tools",
-      "description": "# DevOps Toolkit\n\nAutomation tools for deployment and infrastructure management.\n\n## Tools Used\n\n- Terraform, Ansible\n- GitHub Actions, Jenkins\n- Nginx, Grafana\n\n## Automations\n\n- Infrastructure as code\n- Automated testing and deployment\n- Monitoring dashboards",
-      "date": "2024-02-05",
-      "tags": ["Terraform", "GitHub Actions", "Jenkins", "Nginx", "Grafana"],
-      "links": [],
-      "profilePriority": ["engineer", "recruiter", "stranger"]
     }
   ],
   "theme": "ps3"

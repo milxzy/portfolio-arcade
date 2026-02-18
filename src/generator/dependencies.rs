@@ -1,11 +1,12 @@
 // dependency management and dev server utilities
 // handles npm install and starting the development server
+#![allow(dead_code)]
 
 use anyhow::{anyhow, Result};
+use colored::*;
 use std::path::Path;
 use std::process::Stdio;
 use tokio::process::Command;
-use colored::*;
 
 #[derive(Debug, Clone)]
 pub enum PackageManager {
@@ -94,14 +95,17 @@ impl DependencyManager {
 
     // starts the development server
     pub async fn start_dev_server(&self, port: u16) -> Result<()> {
-        println!("{}", format!("starting dev server on port {}...", port).cyan());
+        println!(
+            "{}",
+            format!("starting dev server on port {}...", port).cyan()
+        );
 
         // set the port environment variable
         let mut cmd = Command::new(self.package_manager.command());
         cmd.args(self.package_manager.dev_args())
             .current_dir(&self.project_path)
             .env("PORT", port.to_string())
-            .stdout(Stdio::null())  // suppress output since we're not monitoring it
+            .stdout(Stdio::null()) // suppress output since we're not monitoring it
             .stderr(Stdio::null());
 
         let _child = cmd.spawn()?;
@@ -114,10 +118,10 @@ impl DependencyManager {
         println!("{}", "your portfolio is ready!".bold().green());
         println!();
         println!("  {}: http://localhost:{}", "local".bold(), port);
-        
+
         // show cms url if it's decap
         println!("  {}: http://localhost:{}/admin", "admin".bold(), port);
-        
+
         println!();
         println!("{}", "next steps:".bold());
         println!("  1. open the local url in your browser");
@@ -132,7 +136,9 @@ impl DependencyManager {
     // checks if the detected package manager is available on the system
     async fn check_package_manager_available(&self) -> Result<()> {
         let mut cmd = Command::new(self.package_manager.command());
-        cmd.arg("--version").stdout(Stdio::null()).stderr(Stdio::null());
+        cmd.arg("--version")
+            .stdout(Stdio::null())
+            .stderr(Stdio::null());
 
         let output = cmd.output().await?;
 
@@ -149,7 +155,9 @@ impl DependencyManager {
     // checks if node.js is available
     pub async fn check_node_available() -> Result<()> {
         let mut cmd = Command::new("node");
-        cmd.arg("--version").stdout(Stdio::null()).stderr(Stdio::null());
+        cmd.arg("--version")
+            .stdout(Stdio::null())
+            .stderr(Stdio::null());
 
         let output = cmd.output().await?;
 
@@ -164,10 +172,10 @@ impl DependencyManager {
 
     // checks if a port is available
     pub async fn check_port_available(port: u16) -> Result<()> {
-        use std::net::{TcpListener, SocketAddr};
+        use std::net::{SocketAddr, TcpListener};
 
         let addr = SocketAddr::from(([127, 0, 0, 1], port));
-        
+
         match TcpListener::bind(addr) {
             Ok(_) => Ok(()),
             Err(_) => Err(anyhow!(

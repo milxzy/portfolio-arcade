@@ -80,41 +80,41 @@ fn adapt_for_ps5(projects: &[Project]) -> Result<Value> {
                 .and_then(|v| v.as_u64())
                 .unwrap_or(0);
             let has_live = project.links.live.is_some();
-            
+
             // Projects with more stars and live demos rank higher for recruiters
             let recruiter_priority = if has_live && stars > 10 { i + 1 } else { i + 5 };
             // Recent projects with good tech stacks rank higher for engineers
             let engineer_priority = if project.tech_stack.len() > 3 { i + 1 } else { i + 3 };
             // Featured projects rank higher for strangers
             let stranger_priority = if project.featured { i + 1 } else { i + 4 };
-            
+
             // Calculate achievements based on project completeness
             let has_description = !project.full_description.is_empty();
             let has_links = project.links.github.is_some() || project.links.live.is_some();
             let has_tech = !project.tech_stack.is_empty();
-            let achievements = 5 + 
+            let achievements = 5 +
                 (if has_description { 2 } else { 0 }) +
                 (if has_links { 2 } else { 0 }) +
                 (if has_tech { 2 } else { 0 }) +
                 (if stars > 5 { 1 } else { 0 }) +
                 (if has_live { 2 } else { 0 });
-            
+
             let total_achievements = 14;
             let progress = ((achievements as f32 / total_achievements as f32) * 100.0) as u32;
-            
+
             // Use placeholder images if none provided
             let cover_image = if !project.thumbnail.is_empty() {
                 project.thumbnail.clone()
             } else {
                 format!("https://images.unsplash.com/photo-1555099962-4199c345e5dd?w=400&h=400&fit=crop&seed={}", i)
             };
-            
+
             let background_image = if !project.thumbnail.is_empty() {
                 project.thumbnail.clone()
             } else {
                 format!("https://images.unsplash.com/photo-1555099962-4199c345e5dd?w=1920&h=1080&fit=crop&seed={}", i)
             };
-            
+
             let mut adapted = serde_json::json!({
                 "id": project.id,
                 "title": project.title,
@@ -208,8 +208,7 @@ fn adapt_for_wii(projects: &[Project]) -> Result<Value> {
 fn adapt_for_ps3(projects: &[Project]) -> Result<Value> {
     let adapted: Vec<Value> = projects
         .iter()
-        .enumerate()
-        .map(|(i, project)| {
+        .map(|project| {
             // Calculate profile priority based on GitHub metrics
             // All projects are shown to all profiles, but ordered differently
             let stars = project

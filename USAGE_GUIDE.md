@@ -25,16 +25,6 @@ select your console theme:
 ```
 arrow keys to navigate, enter to pick.
 
-**cms setup**
-```
-choose cms option:
-  > git-based (decap cms) - recommended
-    self-hosted (payload cms)
-    none - manual json editing
-```
-
-pick how you want to manage content later.
-
 **project details**
 ```
 project details:
@@ -45,10 +35,17 @@ project details:
 ```
 basic info - name, title, dev server port.
 
+**github projects**
+```
+add your github project urls:
+  > https://github.com/you/project-one
+    https://github.com/you/project-two
+```
+paste in the github repos you want featured. at least one is required.
+
 **confirmation**
 ```
 theme: ps5 modern ui
-cms: git-based (decap cms)
 project: my-portfolio
 author: your name
 port: 3000
